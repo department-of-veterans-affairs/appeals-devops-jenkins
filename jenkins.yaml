@@ -1,0 +1,61 @@
+# root
+jenkins:
+  systemMessage: "Automating Configuration Appeals Devops Jenkins"
+  securityRealm:
+    github:
+      githubWebUri: "https://github.com"
+      githubApiUri: "https://api.github.com"
+      clientID: "<client_id>"
+      clientSecret: "<client_secret>"
+      oauthScopes: "read:org"
+  agentProtocols:
+  - "JNLP4-connect"
+  - "Ping"
+  authorizationStrategy:
+    github:
+      adminUserNames: "sharonwarner, shanear, amprokop, \
+                      \ mdbenjam, lisac-usds, nemodjuric,\
+                      \ tejans24, aroltsch, cmgiven, va-bot, \
+                      \ lowellrex, sunil-sadasivan, boris-ning-usds,\
+                      \ enriquemanuel, RobertAlexanderUSDS, mc-usds, \
+                      \ kencheeto"
+      allowAnonymousJobStatusPermission: true
+      allowAnonymousReadPermission: true
+      allowCcTrayPermission: false
+      allowGithubWebHookPermission: true
+      authenticatedUserCreateJobPermission: false
+      authenticatedUserReadPermission: true
+      organizationNames: "department-of-veterans-affairs"
+      useRepositoryPermissions: true
+  disableRememberMe: true
+  mode: NORMAL
+  primaryView:
+    all:
+      name: "all"
+  quietPeriod: 5
+  scmCheckoutRetryCount: 0
+  views:
+  - all:
+      name: "all"
+  globalNodeProperties:
+  - envVars:
+      env:
+      - key: "AWS_DEFAULT_REGION"
+        value: "us-gov-west-1"
+
+# root
+tool:
+  git:
+    installations:
+      - home: "git"
+        name: "Default"
+# root
+security:
+  remotingCLI:
+    enabled: false
+
+# root
+unclassified:
+  location:
+    adminAddress: "caseflow@va.gov"
+    url: "http://appealsjenkins.ds.va.gov/"

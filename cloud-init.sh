@@ -17,8 +17,7 @@ output = json
 EOL
 
 git clone https://github.com/enriquemanuel/jenkins-as-code.git /tmp/jac/
-sudo cp /tmp/jac/jenkins.yaml /var/lib/jenkins/jenkins.yaml
-sudo cp /tmp/jac/
+sudo cp /tmp/jac/* /var/lib/jenkins/
 
 # get github oauth secret for config
 client_id=$(aws ssm get-parameters --with-decryption --names "/jenkins/github_client_id" | jq -r  ".Parameters[0].Value")

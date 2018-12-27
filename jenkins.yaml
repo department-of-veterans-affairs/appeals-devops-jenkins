@@ -36,7 +36,7 @@ jenkins:
   - envVars:
       env:
       - key: "AWS_DEFAULT_REGION"
-        value: "us-gov-west-1"
+        value: "<aws_region>"
 
 # root
 tool:

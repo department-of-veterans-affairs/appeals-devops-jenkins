@@ -21,8 +21,17 @@ sudo cp /tmp/jac/* /var/lib/jenkins/
 
 # get github oauth secret for config
 client_id=$(aws ssm get-parameters --with-decryption --names "/jenkins/github_client_id" | jq -r  ".Parameters[0].Value")
-client_secret=$(aws ssm get-parameters --with-decryption --names "/jenkins/github_client_secret
+
+client_secret=$(aws ssm get-parameters --with-decryption --names "/jenkins/github_client_secret" | jq -r  ".Parameters[0].Value")
+
+github_org_name=$(aws ssm get-parameters --with-decryption --names "/jenkins/github_org_name" | jq -r  ".Parameters[0].Value")
+
+github_admins=$(aws ssm get-parameters --with-decryption --names "/jenkins/github_admins
 " | jq -r  ".Parameters[0].Value")
+
+admin_email=$(aws ssm get-parameters --with-decryption --names "/jenkins/admin_email
+" | jq -r  ".Parameters[0].Value")
+
 
 # not needed later but for now lets try it
 ip=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
@@ -31,6 +40,9 @@ ip=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
 sudo sed -i "s#<client_id>#$client_id#" /var/lib/jenkins/jenkins.yaml
 sudo sed -i "s#<client_secret>#$client_secret#" /var/lib/jenkins/jenkins.yaml
 sudo sed -i "s#<ip>#http://$ip/#" /var/lib/jenkins/jenkins.yaml
+sudo sed -i "s#<admins>#$github_admins#" /var/lib/jenkins/jenkins.yaml
+sudo sed -i "s#<org_name>#$github_org_name#" /var/lib/jenkins/jenkins.yaml
+sudo sed -i "s#<admin_email>#$admin_email#" /var/lib/jenkins/jenkins.yaml
 
 # download dependencies for installing plugins
 curl -O https://raw.githubusercontent.com/jenkinsci/docker/master/install-plugins.sh > /var/lib/jenkins/install-plugins.sh

@@ -13,19 +13,14 @@ jenkins:
   - "Ping"
   authorizationStrategy:
     github:
-      adminUserNames: "sharonwarner, shanear, amprokop, \
-                      \ mdbenjam, lisac-usds, nemodjuric,\
-                      \ tejans24, aroltsch, cmgiven, va-bot, \
-                      \ lowellrex, sunil-sadasivan, boris-ning-usds,\
-                      \ enriquemanuel, RobertAlexanderUSDS, mc-usds, \
-                      \ kencheeto"
+      adminUserNames: "<admins>"
       allowAnonymousJobStatusPermission: true
       allowAnonymousReadPermission: true
       allowCcTrayPermission: false
       allowGithubWebHookPermission: true
       authenticatedUserCreateJobPermission: false
       authenticatedUserReadPermission: true
-      organizationNames: "department-of-veterans-affairs"
+      organizationNames: "<github_org_name>"
       useRepositoryPermissions: true
   disableRememberMe: true
   mode: NORMAL
@@ -57,5 +52,5 @@ security:
 # root
 unclassified:
   location:
-    adminAddress: "caseflow@va.gov"
-    url: "http://appealsjenkins.ds.va.gov/"
+    adminAddress: "<admin_email>"
+    url: "<ip>"

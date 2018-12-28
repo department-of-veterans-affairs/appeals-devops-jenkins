@@ -27,7 +27,8 @@ region = $aws_default_region
 output = json
 EOL
 
-git clone https://github.com/enriquemanuel/jenkins-as-code.git /tmp/jac/
+# bring the config repo
+git clone https://github.com/department-of-veterans-affairs/appeals-devops-jenkins.git /tmp/jac/
 sudo cp /tmp/jac/* /var/lib/jenkins/
 
 # get github oauth secret for config
@@ -48,7 +49,7 @@ if [[ $debug == "true" ]]; then
   jenkins_url=$(curl http://169.254.169.254/latest/meta-data/public-ipv4):8080
 fi
 
-# configure the
+# configure the JCaC
 sudo sed -i "s#<client_id>#$client_id#" /var/lib/jenkins/jenkins.yaml
 sudo sed -i "s#<client_secret>#$client_secret#" /var/lib/jenkins/jenkins.yaml
 sudo sed -i "s#<ip>#http://$jenkins_url/#" /var/lib/jenkins/jenkins.yaml
@@ -57,7 +58,10 @@ sudo sed -i "s#<org_name>#$github_org_name#" /var/lib/jenkins/jenkins.yaml
 sudo sed -i "s#<admin_email>#$admin_email#" /var/lib/jenkins/jenkins.yaml
 sudo sed -i "s#<aws_region>#$aws_default_region#" /var/lib/jenkins/jenkins.yaml
 
+# reset ownership and permissions
 chown jenkins:jenkins /var/lib/jenkins/install_jenkins_plugin.sh
+chown jenkins:jenkins /var/lib/jenkins/jenkins.yaml
+chown jenkins:jenkins /var/lib/jenkins/plugins.txt
 chmod 700 /var/lib/jenkins/install_jenkins_plugin.sh
 chmod 700 /var/lib/jenkins/jenkins.yaml
 chmod 700 /var/lib/jenkins/plugins.txt
@@ -67,5 +71,7 @@ for plugin in `cat /var/lib/jenkins/plugins.txt`; do
   /var/lib/jenkins/install_jenkins_plugin.sh $plugin;
 done
 
+# start jenkins
 sudo service jenkins start
+# auto start if server gets restarted
 sudo chkconfig --add jenkins

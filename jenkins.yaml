@@ -37,18 +37,96 @@ jenkins:
       env:
       - key: "AWS_DEFAULT_REGION"
         value: "<aws_region>"
+      - key: "PATH"
+        value: "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/aws/bin:/home/dsva/.local/bin:/home/dsva/bin"
+  labelString: "swarm appeals-utility deploy devops"
+  mode: NORMAL
+  numExecutors: 16
+  primaryView:
+    all:
+      name: "all"
+  quietPeriod: 5
+  scmCheckoutRetryCount: 0
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+        - usernamePassword:
+            scope: GLOBAL
+            id: "va-bot"
+            username: "va-bot"
+            password: "<va-bot-password>"
+            description: "va-bot username/password"
+        - string:
+            scope: GLOBAL
+            id: "SLACK_TOKEN"
+            secret: "<slack_token>"
+            description: "Slack token"
+        - string:
+            scope: GLOBAL
+            id: "DEPLOY_SLACK_TOKEN"
+            secret: "<deploy_slack_token>"
+            description: "Deploy Slack token"
+        - string:
+            scope: GLOBAL
+            id: "ALERT_SLACK_TOKEN"
+            secret: "<alert_slack_token>"
+            description: "Alert Slack Token"
+        - string:
+            scope: GLOBAL
+            id: "TEST_SLACK_TOKEN"
+            secret: "<test_slack_token>"
+            description: "Test Slack token"
+        - string:
+            scope: GLOBAL
+            id: "SLACK_CHANNEL"
+            secret: "<slack_channel>"
+            description: "Regular Slack Channel"
+        - string:
+            scope: GLOBAL
+            id: "DEPLOY_CHANNEL"
+            secret: "<deploy_channel>"
+            description: "Deploy Slack Channel"
+        - string:
+            scope: GLOBAL
+            id: "ALERT_SLACK_CHANNEL"
+            secret: "<alert_slack_channel>"
+            description: "Alert Slack Channel"
+        - string:
+            scope: GLOBAL
+            id: "TEST_SLACK_CHANNEL"
+            secret: "<test_slack_channel>"
+            description: "Test Slack Channel"
+        - string:
+            scope: GLOBAL
+            id: "PAGERDUTY_TOKEN"
+            secret: "<pagerduty_token>"
+            description: "Deprecate to credstash"
+        - string:
+            scope: GLOBAL
+            id: "GIT_CREDENTIAL"
+            secret: "<test_slack_channel>"
+            description: "va-bot personal access token"
+        - string:
+            scope: GLOBAL
+            id: "VAULT_PASS"
+            secret: "<vault_pass>"
+            description: "TODO Deprecate in favor of credstash"
 
 # root
 tool:
   git:
     installations:
-      - home: "git"
-        name: "Default"
-
-# root define initial seed job
+      - name: git
+        home: /usr/local/bin/git
 
 # root
 unclassified:
+  slackNotifier:
+    teamDomain: <your-slack-workspace-name> # i.e. your-company (just the workspace name not the full url)
+    tokenCredentialId: slack-token
+
   location:
     adminAddress: "<admin_email>"
-    url: "<ip>"
+    url: "http://<ip>"

@@ -44,10 +44,6 @@ tool:
     installations:
       - home: "git"
         name: "Default"
-# root
-security:
-  remotingCLI:
-    enabled: false
 
 # root
 unclassified:

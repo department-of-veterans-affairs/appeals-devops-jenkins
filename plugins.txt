@@ -7,3 +7,4 @@ github-oauth
 slack
 ws-cleanup
 credentials
+jcasc-support

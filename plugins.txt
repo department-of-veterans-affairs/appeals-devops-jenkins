@@ -6,3 +6,4 @@ git-parameter
 github-oauth
 slack
 ws-cleanup
+credentials

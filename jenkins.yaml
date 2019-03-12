@@ -48,32 +48,75 @@ jenkins:
   quietPeriod: 5
   scmCheckoutRetryCount: 0
 
-#root
-credentials:
+#rootcredentials:
   system:
     domainCredentials:
       - credentials:
-        - usernamePassword:
+        - string:
             scope: GLOBAL
-            id: "va-bot"
-            username: "va-bot"
-            password: "<va-bot-password>"
-            description: "va-bot username/password"
+            id: "<jenkins.slack_team_domain>"
+            description: "DSVA team on Slack"
         - string:
             scope: GLOBAL
             id: "SLACK_TOKEN"
-            secret: "<slack_token>"
+            secret: "<jenkins.slack_token>"
             description: "Slack token"
         - string:
             scope: GLOBAL
             id: "DEPLOY_SLACK_TOKEN"
-            secret: "<deploy_slack_token>"
+            secret: "<jenkins.slack_token>"
             description: "Deploy Slack token"
         - string:
             scope: GLOBAL
             id: "ALERT_SLACK_TOKEN"
-            secret: "<alert_slack_token>"
+            secret: "<jenkins.slack_token>"
             description: "Alert Slack Token"
+        - string:
+            scope: GLOBAL
+            id: "TEST_SLACK_TOKEN"
+            secret: "<jenkins.slack_token>"
+            description: "Test Slack token"
+        - string:
+            scope: GLOBAL
+            id: "SLACK_CHANNEL"
+            secret: "<jenkins.slack_channel>"
+            description: "Regular Slack Channel"
+        - string:
+            scope: GLOBAL
+            id: "DEPLOY_CHANNEL"
+            secret: "<jenkins.deploy_channel>"
+            description: "Deploy Slack Channel"
+        - string:
+            scope: GLOBAL
+            id: "ALERT_SLACK_CHANNEL"
+            secret: "<jenkins.alert_channel>"
+            description: "Alert Slack Channel"
+        - string:
+            scope: GLOBAL
+            id: "TEST_SLACK_CHANNEL"
+            secret: "<jenkins.test_channel>"
+            description: "Test Slack Channel"
+        - usernamePassword:
+            scope: GLOBAL
+            id: "va-bot"
+            username: "va-bot"
+            password: "<devops.github_api_token>"
+            description: "va-bot username/password"
+        - string:
+            scope: GLOBAL
+            id: "PAGERDUTY_TOKEN"
+            secret: "<devops.pd_api_token>"
+            description: "Deprecate to credstash"
+        - string:
+            scope: GLOBAL
+            id: "GIT_CREDENTIAL"
+            secret: "<devops.github_api_token>"
+            description: "va-bot personal access token"
+        - string:
+            scope: GLOBAL
+            id: "VAULT_PASS"
+            secret: "<devops.vault_pass>"
+            description: "TODO Deprecate in favor of credstash"
 
 # root
 tool:
@@ -84,10 +127,6 @@ tool:
 
 # root
 unclassified:
-  slackNotifier:
-    teamDomain: <your-slack-workspace-name> # i.e. your-company (just the workspace name not the full url)
-    tokenCredentialId: slack-token
-
   location:
     adminAddress: "<admin_email>"
     url: "http://<ip>"

@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<scriptApproval plugin="script-security@1.25">
+  <approvedScriptHashes>
+    <string>0ff77066df1b5703ece75b1bcb3096605132c02b</string>
+  </approvedScriptHashes>
+  <approvedSignatures>
+    <string>method hudson.model.Cause getShortDescription</string>
+    <string>method hudson.model.Run getCauses</string>
+    <string>method hudson.model.Run getDurationString</string>
+    <string>method hudson.plugins.git.BranchSpec getName</string>
+    <string>method hudson.plugins.git.GitSCM getBranches</string>
+    <string>method java.lang.Process waitFor</string>
+    <string>method java.util.Random nextInt int</string>
+    <string>method org.kohsuke.github.GHIssue comment java.lang.String</string>
+    <string>method org.kohsuke.github.GHIssue getNumber</string>
+    <string>method org.kohsuke.github.GHPullRequest getMergeable</string>
+    <string>method org.kohsuke.github.GHPullRequest getMergeableState</string>
+    <string>method org.kohsuke.github.GHPullRequest listCommits</string>
+    <string>method org.kohsuke.github.GHPullRequest merge java.lang.String</string>
+    <string>method org.kohsuke.github.GHPullRequestCommitDetail getCommit</string>
+    <string>method org.kohsuke.github.GHPullRequestCommitDetail$Commit getAuthor</string>
+    <string>method org.kohsuke.github.GHRef getObject</string>
+    <string>method org.kohsuke.github.GHRef$GHObject getSha</string>
+    <string>method org.kohsuke.github.GHRepository createPullRequest java.lang.String java.lang.String java.lang.String java.lang.String</string>
+    <string>method org.kohsuke.github.GHRepository createRef java.lang.String java.lang.String</string>
+    <string>method org.kohsuke.github.GHRepository getPullRequest int</string>
+    <string>method org.kohsuke.github.GHRepository getRef java.lang.String</string>
+    <string>method org.kohsuke.github.GitHub getUser java.lang.String</string>
+    <string>method org.kohsuke.github.GitUser getEmail</string>
+    <string>new java.util.Date</string>
+    <string>new java.util.Random</string>
+    <string>staticMethod java.net.URLDecoder decode java.lang.String</string>
+    <string>staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods get java.util.Map java.lang.Object java.lang.Object</string>
+    <string>staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods minus java.lang.String java.lang.Object</string>
+    <string>staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods stripIndent java.lang.String</string>
+    <string>staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods stripMargin java.lang.String</string>
+    <string>staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods getText java.lang.Process</string>
+    <string>staticMethod org.codehaus.groovy.runtime.ScriptBytecodeAdapter createRange java.lang.Object java.lang.Object boolean</string>
+
+    <!-- For review_instance_deploy. TODO: evaluate custom Jenkins plugin -->
+    <string>staticField org.kohsuke.github.GHDeploymentState ERROR</string>
+    <string>staticField org.kohsuke.github.GHDeploymentState SUCCESS</string>
+    <string>staticMethod org.kohsuke.github.GitHub connect</string>
+    <string>staticMethod org.codehaus.groovy.runtime.EncodingGroovyMethods encodeHex byte[]</string>
+    <string>staticMethod java.security.MessageDigest getInstance java.lang.String</string>
+    <string>method groovy.lang.GString getBytes</string>
+    <string>method java.security.MessageDigest digest byte[]</string>
+    <string>method org.kohsuke.github.GHRepository createDeployment java.lang.String</string>
+    <string>method org.kohsuke.github.GHDeploymentBuilder autoMerge boolean</string>
+    <string>method org.kohsuke.github.GHDeploymentBuilder environment java.lang.String</string>
+    <string>method org.kohsuke.github.GHDeploymentBuilder requiredContexts java.util.List</string>
+    <string>method org.kohsuke.github.GHDeploymentBuilder create</string>
+    <string>method org.kohsuke.github.GitHub getRepository java.lang.String</string>
+    <string>method org.kohsuke.github.GHObject getId</string>
+    <string>method org.kohsuke.github.GHRepository createDeployStatus int org.kohsuke.github.GHDeploymentState</string>
+    <string>method org.kohsuke.github.GHDeploymentStatusBuilder targetUrl java.lang.String</string>
+    <string>method org.kohsuke.github.GHDeploymentStatusBuilder create</string>
+    <string>method org.kohsuke.github.GHDeploymentStatus getTargetUrl</string>
+    <!-- /review_instance_deploy -->
+
+    <!-- For scorecard_builds -->
+    <string>method org.kohsuke.github.GHRef delete</string>
+    <!-- /scorecard_builds  -->
+  </approvedSignatures>
+  <aclApprovedSignatures/>
+  <approvedClasspathEntries/>
+  <pendingScripts/>
+  <pendingSignatures/>
+  <pendingClasspathEntries/>
+</scriptApproval>

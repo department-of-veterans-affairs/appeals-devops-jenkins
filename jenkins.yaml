@@ -48,6 +48,32 @@ jenkins:
   quietPeriod: 5
   scmCheckoutRetryCount: 0
 
+#root
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+        - usernamePassword:
+            scope: GLOBAL
+            id: "va-bot"
+            username: "va-bot"
+            password: "<va-bot-password>"
+            description: "va-bot username/password"
+        - string:
+            scope: GLOBAL
+            id: "SLACK_TOKEN"
+            secret: "<slack_token>"
+            description: "Slack token"
+        - string:
+            scope: GLOBAL
+            id: "DEPLOY_SLACK_TOKEN"
+            secret: "<deploy_slack_token>"
+            description: "Deploy Slack token"
+        - string:
+            scope: GLOBAL
+            id: "ALERT_SLACK_TOKEN"
+            secret: "<alert_slack_token>"
+            description: "Alert Slack Token"
 
 # root
 tool:

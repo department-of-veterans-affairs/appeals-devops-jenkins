@@ -48,7 +48,8 @@ jenkins:
   quietPeriod: 5
   scmCheckoutRetryCount: 0
 
-#rootcredentials:
+#root
+credentials:
   system:
     domainCredentials:
       - credentials:

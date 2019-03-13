@@ -55,7 +55,8 @@ credentials:
       - credentials:
         - string:
             scope: GLOBAL
-            id: "<jenkins.slack_team_domain>"
+            id: "SLACK_TEAM_DOMAIN"
+            secret: "<jenkins.slack_team_domain>"
             description: "DSVA team on Slack"
         - string:
             scope: GLOBAL

@@ -8,7 +8,7 @@ import org.yaml.snakeyaml.Yaml
 
 def checkout() {
   def jenkinsRepo = "https://" + GIT_CREDENTIAL + "@github.com/department-of-veterans-affairs/appeals-deployment.git"
-  def deploymentBranch = "${DEPLOYMENT_DEV_BRANCH}";
+  def deploymentBranch = "${DEPLOYMENT_DEV_BRANCH}" ?: 'master';
   println("cloning deployment repo with branch ${deploymentBranch}...")
   def gitProc = ["git", "clone", "-b", deploymentBranch, jenkinsRepo].execute(null, workspace)
   def out = new StringBuffer()

@@ -138,6 +138,9 @@ jobs:
   - script: >
         job('seed-job'){
             displayName('SeedJob')
+            logRotator {
+              numToKeep(15)
+            }
             wrappers {
                 credentialsBinding {
                     string('GIT_CREDENTIAL', 'GIT_CREDENTIAL')

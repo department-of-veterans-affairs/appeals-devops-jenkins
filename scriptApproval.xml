@@ -4,6 +4,7 @@
     <string>0ff77066df1b5703ece75b1bcb3096605132c02b</string>
   </approvedScriptHashes>
   <approvedSignatures>
+    <string>method org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper getRawBuild</string>
     <string>method hudson.model.Cause getShortDescription</string>
     <string>method hudson.model.Run getCauses</string>
     <string>method hudson.model.Run getDurationString</string>
@@ -29,6 +30,7 @@
     <string>method org.kohsuke.github.GitUser getEmail</string>
     <string>new java.util.Date</string>
     <string>new java.util.Random</string>
+    <string>staticMethod groovy.json.JsonOutput toJson java.lang.Object</string>
     <string>staticMethod java.net.URLDecoder decode java.lang.String</string>
     <string>staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods get java.util.Map java.lang.Object java.lang.Object</string>
     <string>staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods minus java.lang.String java.lang.Object</string>

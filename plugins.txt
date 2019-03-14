@@ -8,3 +8,4 @@ slack
 ws-cleanup
 credentials
 configuration-as-code-support
+envinject

@@ -3,10 +3,8 @@
 import groovy.transform.Field
 import org.yaml.snakeyaml.Yaml
 
-@Field build = Thread.currentThread().executable
-@Field workspacePath = build.workspace.toString()
-@Field workspace = new File(workspacePath)
-@Field repoPath = workspacePath + "/appeals-deployment"
+@Field workspace = new File("/var/lib/jenkins/workspace/seed-job")
+@Field repoPath = "/var/lib/jenkins/workspace/seed-job/appeals-deployment"
 
 def checkout() {
   def jenkinsRepo = "https://" + GIT_CREDENTIAL + "@github.com/department-of-veterans-affairs/appeals-deployment.git"

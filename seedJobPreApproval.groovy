@@ -1,22 +1,8 @@
-import com.cloudbees.plugins.credentials.*
-import com.cloudbees.plugins.credentials.domains.*
-import com.cloudbees.plugins.credentials.impl.*
-import com.michelin.cio.hudson.plugins.rolestrategy.*
-import hudson.model.Cause
-import hudson.security.*
-import hudson.security.AuthorizationStrategy
-import hudson.security.SecurityRealm
-import hudson.util.Secret
 import jenkins.model.Jenkins
 import jenkins.security.s2m.AdminWhitelistRule
-import org.jenkinsci.plugins.GithubAuthorizationStrategy
-import org.jenkinsci.plugins.GithubSecurityRealm
-import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl
 import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval;
 import org.jenkinsci.plugins.scriptsecurity.scripts.languages.GroovyLanguage;
-
 import jenkins.AgentProtocol
-import hudson.model.RootAction
 
 // Disable deprecated JNLP protocols
 def protocols = AgentProtocol.all()
@@ -32,7 +18,6 @@ protocols.each { protocol ->
 Jenkins.instance.getInjector()
   .getInstance(AdminWhitelistRule.class)
   .setMasterKillSwitch(false)
-
 
 ScriptApproval.get().preapprove(
   new File('/var/lib/jenkins/workspace/seed-job/seedJob.groovy').getText('UTF-8'),

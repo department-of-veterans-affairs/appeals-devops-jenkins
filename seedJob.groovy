@@ -5,10 +5,16 @@ import org.yaml.snakeyaml.Yaml
 
 @Field workspace = new File("/var/lib/jenkins/workspace/seed-job")
 @Field repoPath = "/var/lib/jenkins/workspace/seed-job/appeals-deployment"
+def deploymentBranch
 
 def checkout() {
   def jenkinsRepo = "https://" + GIT_CREDENTIAL + "@github.com/department-of-veterans-affairs/appeals-deployment.git"
-  def deploymentBranch = "${DEPLOYMENT_DEV_BRANCH}" ?: 'master';
+  try {
+    deploymentBranch = "${DEPLOYMENT_DEV_BRANCH}"
+  }
+  catch(Exception ex){
+    deploymentBranch = "master"
+  }
   println("cloning deployment repo with branch ${deploymentBranch}...")
   def gitProc = ["git", "clone", "-b", deploymentBranch, jenkinsRepo].execute(null, workspace)
   def out = new StringBuffer()

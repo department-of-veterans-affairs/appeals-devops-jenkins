@@ -1,8 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<scriptApproval plugin="script-security@1.25">
-  <approvedScriptHashes>
-    <string>0ff77066df1b5703ece75b1bcb3096605132c02b</string>
-  </approvedScriptHashes>
+<scriptApproval plugin="script-security">
   <approvedSignatures>
     <string>method org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper getRawBuild</string>
     <string>method hudson.model.Cause getShortDescription</string>

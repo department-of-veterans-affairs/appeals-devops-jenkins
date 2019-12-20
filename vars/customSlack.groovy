@@ -17,20 +17,20 @@ def call(Map stageParams) {
     
     try{
         if ( buildResult == "SUCCESS" ) {
-            slack_color = "good",
+            slack_color = "good"
             slack_channel = success_channel
 
         }
         else if( buildResult == "FAILURE" ) {
-            slack_color = "danger",
+            slack_color = "danger"
             slack_channel = failure_channel
         }
         else if( buildResult == "UNSTABLE" ) {
-            slack_color ="warning",
+            slack_color ="warning"
             slack_channel = failure_channel
         }
         else {
-            slack_color = "danger",
+            slack_color = "danger"
             slack_channel = failure_channel
 
         }

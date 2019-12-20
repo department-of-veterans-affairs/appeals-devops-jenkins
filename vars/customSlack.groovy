@@ -2,7 +2,12 @@
 
 def call(Map stageParams) {
     buildResult = stageParams.buildResult
-    message = stageParams.message ? stageParams.message : "${buildResult} | Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER}. URL: ${currentBuild.getAbsoluteUrl()}"
+    
+    message = stageParams.message ? stageParams.message : """${buildResult} 
+    |Job: ${env.JOB_NAME}
+    |buildnumber ${env.BUILD_NUMBER}
+    |${currentBuild.getAbsoluteUrl()}"""
+
     success_channel = stageParams.channel
     failure_channel = stageParams.failure_channel ? failure_channel: "appeals-devops"
     

@@ -5,6 +5,7 @@ def call(Map stageParams) {
     message = stageParams.message ? stageParams.message : "${buildResult} | Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER}"
     success_channel = stageParams.channel
     failure_channel = stageParams.failure_channel ? failure_channel: "appeals-devops"
+    
     try{
         if ( buildResult == "SUCCESS" ) {
             slackSend   color: "good",

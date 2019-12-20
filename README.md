@@ -1,3 +1,8 @@
+# Jenkins for the Appeals DevOps team.
+This repo comprises 2 parts.
+1. Configuration as Code (ie: jenkins-as-code)
+2. Shared Libraries (ie: vars/)
+
 # jenkins-as-code
 Configure an intranet application that authenticates with Github Oauth and gets those secrets from SSM
 

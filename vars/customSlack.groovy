@@ -2,31 +2,34 @@
 
 def call(Map stageParams) {
     buildResult = stageParams.buildResult
+    message = stageParams.message ? stageParams.message : "${buildResult} | Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER}"
+    success_channel = stageParams.channel
+    failure_channel = stageParams.failure_channel ? failure_channel: "appeals-devops"
     try{
         if ( buildResult == "SUCCESS" ) {
-            slackSend   color: "good", 
-                        message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was successful",
-                        channel: stageParams.channel
-                        
+            slackSend   color: "good",
+                        message: message,
+                        channel: success_channel
+
         }
-        else if( buildResult == "FAILURE" ) { 
-            slackSend   color: "danger", 
-                        message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was failed",
-                        channel: stageParams.channel
+        else if( buildResult == "FAILURE" ) {
+            slackSend   color: "danger",
+                        message: message,
+                        channel: failure_channel
         }
-        else if( buildResult == "UNSTABLE" ) { 
-            slackSend   color: "warning", 
-                        message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was unstable",
-                        channel: stageParams.channel
-        } 
+        else if( buildResult == "UNSTABLE" ) {
+            slackSend   color: "warning",
+                        message: message,
+                        channel: failure_channel
+        }
         else {
-            slackSend   color: "danger", 
-                        message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} its resulat was unclear",
-                        channel: stageParams.channel
-                        
+            slackSend   color: "danger",
+                        message: message,
+                        channel: failure_channel
+
         }
     }
     catch(err) {
-                println "Failed to notify Slack: ${err}"
+        println "Failed to notify Slack: ${err}"
     }
 }

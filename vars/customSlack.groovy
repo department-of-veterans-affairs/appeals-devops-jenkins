@@ -9,7 +9,7 @@ def call(Map stageParams) {
     ${currentBuild.getAbsoluteUrl()}""".stripMargin()
 
     success_channel = stageParams.channel
-    failure_channel = stageParams.failure_channel ? failure_channel : "appeals-devops"
+    failure_channel = stageParams.failure_channel ? stageParams.failure_channel : "appeals-devops"
     
     try{
         if ( buildResult == "SUCCESS" ) {

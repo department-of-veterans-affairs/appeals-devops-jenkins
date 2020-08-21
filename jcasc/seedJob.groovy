@@ -1,10 +1,12 @@
 @Grab('org.yaml:snakeyaml:1.17')
 
+import groovy.lang.GroovyClassLoader
 import groovy.transform.Field
 import org.yaml.snakeyaml.Yaml
 
 @Field workspace = new File("/var/lib/jenkins/workspace/seed-job")
 @Field repoPath = "/var/lib/jenkins/workspace/seed-job/appeals-deployment"
+@Field classLoader = new GroovyClassLoader(getClass().getClassLoader())
 def deploymentBranch
 
 def checkout() {

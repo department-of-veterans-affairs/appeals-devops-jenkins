@@ -15,7 +15,7 @@ def checkout() {
   catch(Exception ex){
     deploymentBranch = "master"
   }
-  println("cloning deployment repo with branch ${deploymentBranch}...")
+  println("Cloning deployment repo with branch ${deploymentBranch}...")
   def gitProc = ["git", "clone", "-b", deploymentBranch, jenkinsRepo].execute(null, workspace)
   def out = new StringBuffer()
   def err = new StringBuffer()
@@ -43,15 +43,16 @@ def createFolderFromYaml(String folderName, File yamlFile) {
 }
 
 def createFolder(String folderName, String folderFullName) {
+  println("Creating folder: $folderName")
   folder(folderFullName) {
     displayName(folderName)
   }
 }
 
 def createJobFromGroovy(String folderName, File groovyFile) {
-  println("Creating Job... $folderName")
+  println("Creating Job... $groovyFile.name")
 
-  GroovyShell shell = new GroovyShell(this.binding)
+  GroovyShell shell = new GroovyShell(classLoader, this.binding)
   def script = shell.parse(groovyFile)
 
   def arguments = [:]
@@ -62,15 +63,9 @@ def createJobFromGroovy(String folderName, File groovyFile) {
 
 def scanFolder(File folder, String parentFolderName) {
   def folderName = parentFolderName + "/" + folder.getName()
-  def isJob = false
-
-  File jobFile = new File(folder.absolutePath + "/job.groovy")
   File folderFile = new File(folder.absolutePath + "/folder.yml")
 
-  if(jobFile.exists()) {
-    return createJobFromGroovy(folderName, jobFile)
-  }
-
+  // Create Jenkins folders
   if(folderFile.exists()) {
     createFolderFromYaml(folderName, folderFile)
   }
@@ -78,14 +73,22 @@ def scanFolder(File folder, String parentFolderName) {
     createFolder(folder.getName(), folderName)
   }
 
+  // Process the rest of the folders in this directory
   for (file in folder.listFiles()) {
     if(file.isDirectory()) {
       scanFolder(file, folderName)
+    }
+    else {
+      if (file.getName().toLowerCase().endsWith("job.groovy")) {
+        // Run all the *job.groovy scripts
+        createJobFromGroovy(folderName, file)
+      }
     }
   }
 }
 
 def scanRootFolder(File folder) {
+  println("Scanning root folder")
   for (file in folder.listFiles()) {
     if(file.isDirectory()) {
       scanFolder(file, "")
@@ -97,5 +100,5 @@ def scanRootFolder(File folder) {
 ["rm", "-rf", repoPath].execute().waitFor()
 
 checkout()
-def jobsFolder = new File(repoPath + "/jenkins-jobs")
+def jobsFolder = new File(repoPath + "/jobdefs")
 scanRootFolder(jobsFolder)

@@ -4,8 +4,14 @@ import groovy.lang.GroovyClassLoader
 import groovy.transform.Field
 import org.yaml.snakeyaml.Yaml
 
-@Field workspace = new File("/var/lib/jenkins/jobs/seed-job/workspace/")
-@Field repoPath = "/var/lib/jenkins/jobs/seed-job/workspace/appeals-deployment"
+
+
+// @Field workspace = new File("/var/lib/jenkins/jobs/seed-job/workspace/")
+// @Field repoPath = "/var/lib/jenkins/jobs/seed-job/workspace/appeals-deployment"
+@Field build = Thread.currentThread().executable
+@Field workspacePath = build.workspace.toString()
+@Field jobDefDir = new File(workspacePath + "/jobdefs")
+
 @Field classLoader = new GroovyClassLoader(getClass().getClassLoader())
 def deploymentBranch
 
@@ -18,7 +24,7 @@ def checkout() {
     deploymentBranch = "master"
   }
   println("Cloning deployment repo with branch ${deploymentBranch}...")
-  def gitProc = ["git", "clone", "-b", deploymentBranch, jenkinsRepo].execute(null, workspace)
+  def gitProc = ["git", "clone", "-b", deploymentBranch, jenkinsRepo].execute(null, workspacePath)
   def out = new StringBuffer()
   def err = new StringBuffer()
   gitProc.consumeProcessOutput(out, err)
@@ -102,5 +108,12 @@ def scanRootFolder(File folder) {
 ["rm", "-rf", repoPath].execute().waitFor()
 
 checkout()
-def jobsFolder = new File(repoPath + "/jobdefs")
-scanRootFolder(jobsFolder)
+// def jobsFolder = new File(repoPath + "/jobdefs")
+// scanRootFolder(jobsFolder)
+
+
+// Add jobdefs dir to classpath in classLoaders used to run jobdef files
+// This allows the scripts to import the common package under this directory
+classLoader.addClasspath(jobDefDir.getAbsolutePath())
+// Start scanning for jobdef files
+scanRootFolder(jobDefDir)

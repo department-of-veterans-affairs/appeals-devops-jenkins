@@ -20,6 +20,6 @@ Jenkins.instance.getInjector()
   .setMasterKillSwitch(false)
 
 ScriptApproval.get().preapprove(
-  new File('/var/lib/jenkins/workspace/seed-job/seedJob.groovy').getText('UTF-8'),
+  new File('/var/lib/jenkins/jobs/seed-job/workspace/seedJob.groovy').getText('UTF-8'),
   GroovyLanguage.get()
 )

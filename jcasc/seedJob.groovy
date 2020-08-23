@@ -6,7 +6,7 @@ import org.yaml.snakeyaml.Yaml
 
 
 
-// @Field workspace = new File("/var/lib/jenkins/jobs/seed-job/workspace/")
+@Field workspace = new File("/var/lib/jenkins/jobs/seed-job/workspace/")
 @Field repoPath = "/var/lib/jenkins/jobs/seed-job/workspace/appeals-deployment"
 @Field build = Thread.currentThread().executable
 @Field workspacePath = build.workspace.toString()

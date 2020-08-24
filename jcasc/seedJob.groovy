@@ -8,9 +8,9 @@ import org.yaml.snakeyaml.Yaml
 
 @Field workspace = new File("/var/lib/jenkins/jobs/seed-job/workspace/")
 @Field repoPath = "/var/lib/jenkins/jobs/seed-job/workspace/appeals-deployment"
-@Field build = Thread.currentThread().executable
-@Field workspacePath = build.workspace.toString()
-@Field jobDefDir = new File(workspacePath + "/jobdefs")
+// @Field build = Thread.currentThread().executable
+// @Field workspacePath = build.workspace.toString()
+@Field jobDefDir = new File(repoPath + "/jobdefs")
 
 @Field classLoader = new GroovyClassLoader(getClass().getClassLoader())
 def deploymentBranch
@@ -24,7 +24,7 @@ def checkout() {
     deploymentBranch = "master"
   }
   println("Cloning deployment repo with branch ${deploymentBranch}...")
-  def gitProc = ["git", "clone", "-b", deploymentBranch, jenkinsRepo].execute(null, workspacePath)
+  def gitProc = ["git", "clone", "-b", deploymentBranch, jenkinsRepo].execute(null, workspace)
   def out = new StringBuffer()
   def err = new StringBuffer()
   gitProc.consumeProcessOutput(out, err)

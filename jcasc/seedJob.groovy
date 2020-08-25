@@ -4,12 +4,8 @@ import groovy.lang.GroovyClassLoader
 import groovy.transform.Field
 import org.yaml.snakeyaml.Yaml
 
-
-
 @Field workspace = new File("/var/lib/jenkins/jobs/seed-job/workspace/")
-@Field repoPath = "/var/lib/jenkins/jobs/seed-job/workspace/appeals-deployment"
-// @Field build = Thread.currentThread().executable
-// @Field workspacePath = build.workspace.toString()
+@Field repoPath = workspace + "appeals-deployment"
 @Field jobDefDir = new File(repoPath + "/jobdefs")
 
 @Field classLoader = new GroovyClassLoader(getClass().getClassLoader())
@@ -108,10 +104,6 @@ def scanRootFolder(File folder) {
 ["rm", "-rf", repoPath].execute().waitFor()
 
 checkout()
-// def jobsFolder = new File(repoPath + "/jobdefs")
-// scanRootFolder(jobsFolder)
-
-
 // Add jobdefs dir to classpath in classLoaders used to run jobdef files
 // This allows the scripts to import the common package under this directory
 classLoader.addClasspath(jobDefDir.getAbsolutePath())

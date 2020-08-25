@@ -39,7 +39,7 @@ jenkins:
         value: "<aws_region>"
       - key: "PATH"
         value: "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/aws/bin:/home/dsva/.local/bin:/home/dsva/bin"
-  labelString: "swarm appeals-utility deploy devops"
+  labelString: "appeals deploy devops"
   mode: NORMAL
   numExecutors: 16
   primaryView:
@@ -106,19 +106,9 @@ credentials:
             description: "va-bot username/password"
         - string:
             scope: GLOBAL
-            id: "PAGERDUTY_TOKEN"
-            secret: "<devops.pd_api_token>"
-            description: "Deprecate to credstash"
-        - string:
-            scope: GLOBAL
             id: "GIT_CREDENTIAL"
             secret: "<devops.github_api_token>"
             description: "va-bot personal access token"
-        - string:
-            scope: GLOBAL
-            id: "VAULT_PASS"
-            secret: "<devops.vault_pass>"
-            description: "TODO Deprecate in favor of credstash"
 
 # root
 tool:
@@ -137,7 +127,7 @@ unclassified:
 jobs:
   - script: >
         job('seed-job'){
-            displayName('SeedJob')
+            displayName('seed-job')
             logRotator {
               numToKeep(15)
             }

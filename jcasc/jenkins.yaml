@@ -122,6 +122,15 @@ unclassified:
   location:
     adminAddress: "<admin_email>"
     url: "http://<ip>"
+  globalLibraries:
+    libraries:
+      - name: "appeals-devops-jenkins"
+        retriever:
+          modernSCM:
+            scm:
+              git:
+                remote: "git@github.com:department-of-veterans-affairs/appeals-devops-jenkins.git"
+                credentialsId: "va-bot"
 
 # root
 jobs:

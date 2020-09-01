@@ -155,5 +155,5 @@ jobs:
                 cron('H H(0-5) * * *')
             }
         }
-  - script: >
-      queue('seed-job')
+  # - script: >
+  #     queue('seed-job')

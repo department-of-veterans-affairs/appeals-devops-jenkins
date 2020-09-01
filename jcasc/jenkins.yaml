@@ -125,11 +125,13 @@ unclassified:
   globalLibraries:
     libraries:
       - name: "appeals-devops-jenkins"
+        defaultVersion: "master"
+        implicit: true
         retriever:
           modernSCM:
             scm:
               git:
-                remote: "git@github.com:department-of-veterans-affairs/appeals-devops-jenkins.git"
+                remote: "https://github.com/department-of-veterans-affairs/appeals-devops-jenkins.git"
                 credentialsId: "va-bot"
 
 # root

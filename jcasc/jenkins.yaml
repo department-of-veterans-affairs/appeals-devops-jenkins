@@ -98,6 +98,11 @@ credentials:
             id: "TEST_SLACK_CHANNEL"
             secret: "<jenkins.test_channel>"
             description: "Test Slack Channel"
+        - string:
+            scope: GLOBAL
+            id: "NEW_RELIC_API_KEY"
+            secret: "<devops.new_relic_api_key>"
+            description: "New Relic API Key"
         - usernamePassword:
             scope: GLOBAL
             id: "va-bot"

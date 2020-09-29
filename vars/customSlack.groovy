@@ -16,26 +16,25 @@ def call(Map stageParams) {
             slackSend   color: "good",
                         message: message,
                         channel: success_channel,
-                        token: env.SLACK_TOKEN
-
+                        tokenCredentialId: SLACK_TOKEN
         }
         else if( buildResult == "FAILURE" ) {
             slackSend   color: "danger",
                         message: message,
                         channel: failure_channel,
-                        token: env.SLACK_TOKEN
+                        tokenCredentialId: SLACK_TOKEN
         }
         else if( buildResult == "UNSTABLE" ) {
             slackSend   color: "warning",
                         message: message,
                         channel: failure_channel,
-                        token: env.SLACK_TOKEN
+                        tokenCredentialId: SLACK_TOKEN
         }
         else {
             slackSend   color: "danger",
                         message: message,
                         channel: failure_channel,
-                        token: env.SLACK_TOKEN
+                        tokenCredentialId: SLACK_TOKEN
 
         }
     }

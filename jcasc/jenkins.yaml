@@ -127,6 +127,10 @@ unclassified:
   location:
     adminAddress: "<admin_email>"
     url: "http://<ip>"
+  slackNotifier:
+    teamDomain: ""
+    baseUrl: ""
+    tokenCredentialId: "SLACK_TOKEN"
   globalLibraries:
     libraries:
       - name: "appeals-devops-jenkins"

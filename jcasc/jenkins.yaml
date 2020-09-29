@@ -128,7 +128,7 @@ unclassified:
     adminAddress: "<admin_email>"
     url: "http://<ip>"
   slackNotifier:
-    teamDomain: ""
+    teamDomain: "dsva"
     baseUrl: ""
     tokenCredentialId: "SLACK_TOKEN"
   globalLibraries:

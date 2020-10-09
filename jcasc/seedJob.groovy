@@ -7,7 +7,7 @@ import org.yaml.snakeyaml.Yaml
 @Field seedJobWorkspace = "/var/lib/jenkins/jobs/seed-job/workspace/"
 @Field workspaceDir = new File(seedJobWorkspace)
 @Field repoPath = seedJobWorkspace + "appeals-deployment"
-@Field jobDefDir = new File(repoPath + "/jobdefs_temp")
+@Field jobDefDir = new File(repoPath + "/jobdefs")
 
 @Field classLoader = new GroovyClassLoader(getClass().getClassLoader())
 def deploymentBranch

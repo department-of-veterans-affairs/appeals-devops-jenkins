@@ -16,10 +16,6 @@ def call(Map config) {
     // create a deployment event in New Relic so we can audit our deploy history.
     // for instance, you can see production Caseflow deploys here:
     // https://rpm.newrelic.com/accounts/1788458/applications/80608544/deployments.
-    println(config.appName)
-    println(config.environment)
-    println(commitHash)
-    println(cause)
     NEW_RELIC_APP_IDS = [
       caseflow: [
         prod: 80608544,
@@ -33,37 +29,40 @@ def call(Map config) {
       ]
     ]
 
-    newRelicAppId = NEW_RELIC_APP_IDS[config.appName]?[config.environment]
-    if (newRelicAppId) {
-      jsonPayload = JsonOutput.toJson([
-        deployment: [
-          revision: config.commitHash,
-          user: config.cause
-        ]
-      ])
+    def newRelicApp = NEW_RELIC_APP_IDS[config.appName]
+    if (newRelicApp) {
+      def newRelicAppId = newRelicApp[config.environment]
+      if (newRelicAppId) {
+        jsonPayload = JsonOutput.toJson([
+          deployment: [
+            revision: config.commitHash,
+            user: config.cause
+          ]
+        ])
 
-      node {
-        withCredentials([
-          [
-            // API token to post data to New Relic
-            $class: 'StringBinding',
-            credentialsId : 'NEW_RELIC_API_KEY',
-            variable: 'NEW_RELIC_API_KEY',
-          ],
-        ]) {
-        // We call `set +x` below to prevent Jenkins from logging our API key.
-        sh """
-          #!/bin/bash -e
-          set +x
+        node {
+          withCredentials([
+            [
+              // API token to post data to New Relic
+              $class: 'StringBinding',
+              credentialsId : 'NEW_RELIC_API_KEY',
+              variable: 'NEW_RELIC_API_KEY',
+            ],
+          ]) {
+          // We call `set +x` below to prevent Jenkins from logging our API key.
+          sh """
+            #!/bin/bash -e
+            set +x
 
-          curl -X POST 'https://api.newrelic.com/v2/applications/${newRelicAppId}/deployments.json' \
-              -H "X-Api-Key:${env.NEW_RELIC_API_KEY}" -i \
-              -H 'Content-Type: application/json' \
-              -d '${jsonPayload}'
-        """
+            curl -X POST 'https://api.newrelic.com/v2/applications/${newRelicAppId}/deployments.json' \
+                -H "X-Api-Key:${env.NEW_RELIC_API_KEY}" -i \
+                -H 'Content-Type: application/json' \
+                -d '${jsonPayload}'
+          """
+          }
         }
+      } else {
+        print "New Relic deployment tracking is not enabled for ${config.appName} on ${config.environment}."
       }
-    } else {
-      print "New Relic deployment tracking is not enabled for ${config.appName} on ${config.environment}."
-    }
+  }
 }

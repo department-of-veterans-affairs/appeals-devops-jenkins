@@ -53,6 +53,7 @@ def call(Map config) {
           sh """
             #!/bin/bash -e
             set +x
+            echo Posting ${jsonPayload} to New Relic for ${newRelicAppId}
 
             curl -X POST 'https://api.newrelic.com/v2/applications/${newRelicAppId}/deployments.json' \
                 -H "X-Api-Key:${env.NEW_RELIC_API_KEY}" -i \

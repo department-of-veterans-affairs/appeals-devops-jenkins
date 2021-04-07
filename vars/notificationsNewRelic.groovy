@@ -22,12 +22,12 @@ def call(Map config) {
     print config.cause
     
     NEW_RELIC_APP_IDS = [
-      caseflow: [
+      certification: [
         prod: 80608544,
         preprod: 81409034,
         uat: 80617951,
       ],
-      'caseflow-efolder':  [
+      efolder:  [
         prod: 81190810,
         preprod: 81465643,
         uat: 81495155,

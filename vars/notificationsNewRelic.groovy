@@ -16,7 +16,11 @@ def call(Map config) {
     // create a deployment event in New Relic so we can audit our deploy history.
     // for instance, you can see production Caseflow deploys here:
     // https://rpm.newrelic.com/accounts/1788458/applications/80608544/deployments.
-    def NEW_RELIC_APP_IDS = [
+    println(config.appName)
+    println(config.environment)
+    println(commitHash)
+    println(cause)
+    NEW_RELIC_APP_IDS = [
       caseflow: [
         prod: 80608544,
         preprod: 81409034,
@@ -29,9 +33,9 @@ def call(Map config) {
       ]
     ]
 
-    def newRelicAppId = NEW_RELIC_APP_IDS[config.appName]?[config.environment]
+    newRelicAppId = NEW_RELIC_APP_IDS[config.appName]?[config.environment]
     if (newRelicAppId) {
-      def jsonPayload = JsonOutput.toJson([
+      jsonPayload = JsonOutput.toJson([
         deployment: [
           revision: config.commitHash,
           user: config.cause

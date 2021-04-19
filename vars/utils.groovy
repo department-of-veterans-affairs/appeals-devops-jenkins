@@ -1,0 +1,3 @@
+def defaultBranch() {
+    return 'master'
+}

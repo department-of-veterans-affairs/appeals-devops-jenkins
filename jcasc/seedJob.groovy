@@ -63,6 +63,7 @@ def createJobFromGroovy(String folderName, File groovyFile) {
   def arguments = [:]
   arguments['folderName'] = folderName
   arguments['jenkins'] = this
+  arguments['defaultBranch'] = 'master'
   script.invokeMethod("createJob", arguments)
 }
 

@@ -1,7 +1,7 @@
 workflow-aggregator
 blueocean
 configuration-as-code
-docker-pipeline
+docker-workflow
 job-dsl
 git-parameter
 github-oauth

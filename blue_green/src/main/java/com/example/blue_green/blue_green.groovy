@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 // Can probably remove the line below
 // package com.example.blue_green;
-
+import groovy.json.JsonSlurper
 /**
  * Hello world!
  *
@@ -76,6 +76,8 @@ public def change_attach_asg_to(blue, terragrunt_working_dir) {
     attach_asg_to = 'a'   
   }
   File tfvars = new File("${terragrunt_working_dir}/terraform.tfvars")
+  //TODO: use the get_outputs() to get current values and ONLY change the
+  //attach_asg_to value
   tfvars.append "attach_asg_to = \"${attach_asg_to}\"\n"
   tfvars.append "blue_weight_a = 100\n"
   tfvars.append "blue_weight_b = 0\n"
@@ -91,18 +93,22 @@ public def change_attach_asg_to(blue, terragrunt_working_dir) {
   tfvars.delete()
 }
 
+public Map get_outputs(terragrunt_working_dir) {
+  def jsonSlurper = new JsonSlurper()
+  "terragrunt init --terragrunt-working-dir ${terragrunt_working_dir}".execute()
+  def sout = new StringBuilder(), serr = new StringBuilder()
+  def proc = "terragrunt output -json --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
+  proc.consumeProcessOutput(sout, serr) 
+  proc.waitForOrKill(9000000)
+  def object = jsonSlurper.parseText(sout.toString()) 
+  object.get('attach_asg_to').get('value')
+}
+
 // Treat here and down as main()
 // Jenkins pipeline would pass around vars in / out instead of this file 
 println "Starting..."
-def String blue = get_blue(terragrunt_working_dir)
-println "Blue infrastrucure is ${blue}"
-change_attach_asg_to(blue, terragrunt_working_dir)
-
-
-
-
-//String[] ENVtoArray() { ENV.collect { k, v -> "$k=$v" } }
-//
-//"bash -c set".execute(ENVtoArray(), null).text 
-
+get_outputs(terragrunt_working_dir)
+//def String blue = get_blue(terragrunt_working_dir)
+//println "Blue infrastrucure is ${blue}"
+//change_attach_asg_to(blue, terragrunt_working_dir)
 

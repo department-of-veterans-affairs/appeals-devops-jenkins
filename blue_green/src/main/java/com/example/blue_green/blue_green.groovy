@@ -36,15 +36,28 @@
 // value 2 = test location
 def String terragrunt_working_dir = '/Users/bskeen/repository/appeals-terraform/live/uat/revproxy-caseflow-replica/common'
 
+public String removeBlankSpace(StringBuilder sb) {
+  	println "Running removeBlankSpace()"
+  	int j = 0;
+  	for(int i = 0; i < sb.length(); i++) {
+  	  if (!Character.isWhitespace(sb.charAt(i))) {
+  	     sb.setCharAt(j++, sb.charAt(i));
+  	  }
+  	}
+  	return sb.delete(j, sb.length());
+}
+
 // TODO tomorrow: Test this shit and make sure it works when A=100 and when B=100
 // it should return the current blue deployment
-static def get_blue(String terragrunt_working_dir) {	
+public def get_blue(String terragrunt_working_dir) {	
+	println "Running get_blue()"
 	def sout = new StringBuilder(), serr = new StringBuilder()
 	"terragrunt init --terragrunt-working-dir ${terragrunt_working_dir}".execute()
 	def proc_a = "terragrunt output blue_weight_a --terragrunt-working-dir ${terragrunt_working_dir}".execute()
 	proc_a.consumeProcessOutput(sout, serr)
 	proc_a.waitForOrKill(10000)
-	if(sout == "100") {
+	def String blue_weight_a = removeBlankSpace(sout) 
+	if(blue_weight_a.equals('100')) {
 		def String blue = 'a'
 		return blue
 	}
@@ -56,5 +69,6 @@ static def get_blue(String terragrunt_working_dir) {
 
 // Treat here and down as main()
 // Jenkins pipeline would pass around vars in / out instead of this file 
+println "Starting..."
 def String blue = get_blue(terragrunt_working_dir)
-println blue
+println "Blue infrastrucure is ${blue}"

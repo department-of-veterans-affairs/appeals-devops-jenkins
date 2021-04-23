@@ -43,7 +43,7 @@ public Map get_outputs(terragrunt_working_dir) {
 	def String infra_set = 'common'
 	def jsonSlurper = new JsonSlurper()
   	def init_sout = new StringBuilder(), init_serr = new StringBuilder()
-	def proc_init =	"terragrunt init --terragrunt-working-dir ${terragrunt_working_dir}/${infra_set}".execute()
+	def proc_init =	"terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}/${infra_set}".execute()
     proc_init.consumeProcessOutput(init_sout, init_serr) 
     proc_init.waitForOrKill(9000000)
 	
@@ -62,21 +62,41 @@ public Map get_outputs(terragrunt_working_dir) {
 	return outputs
 }
 
+public def tg_apply(terragrunt_working_dir, infra_set) {
+	println "Running tg_apply()"
+	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
+	def proc_apply = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir}/${infra_set}".execute() 
+	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
+	proc_apply.waitForOrKill(9000000)
+	println "PROC_APPLY SERR = ${apply_serr}"
+	println "PROC_APPLY SOUT = ${apply_sout}" 
+}
+
 // not sure if this is needed but might come in handly later
-public def get_blue(outputs) {	
-	println "Running get_blue()"
+public def get_blue_green(outputs) {	
+	println "Running get_blue_green()"
 	if (outputs.get('blue_weight_a').equals(100)) {
-		def String blue = 'a'
-		return blue	
+		blue = 'a'
 	}
-	if (outputs.get('blue_weight_b').equals(100)) {
-		def String blue = 'b'
-		return blue
+	else if (outputs.get('blue_weight_b').equals(100)) {
+		blue = 'b'
 	} 
 	else {
 		println "ERROR: Neither blue_weight_a or blue_weight_b is set to 100"
-		System.exit(1)
 	}
+
+	if (outputs.get('green_weight_a').equals(100)) {
+		green = 'a'
+	}
+	else if (outputs.get('green_weight_b').equals(100)) {
+		green = 'b'
+	} 
+	else {
+		println "ERROR: Neither green_weight_a or green_weight_b is set to 100"
+	}
+	println "BLUE = ${blue}"
+	println "GREEN = ${green}"
+	return [blue, green]
 }
 
 public def change_attach_asg_to(outputs, terragrunt_working_dir) {
@@ -108,28 +128,57 @@ public def change_attach_asg_to(outputs, terragrunt_working_dir) {
 	tfvars.delete()
 }
 
-public def tg_apply (terragrunt_working_dir, infra_set) {
-	println "Running tg_apply()"
-	def init_sout = new StringBuilder(), init_serr = new StringBuilder()
-	def proc_init =	"terragrunt init --terragrunt-working-dir ${terragrunt_working_dir}/${infra_set}".execute()
-	proc_init.consumeProcessOutput(init_sout, init_serr) 
-	proc_init.waitForOrKill(9000000)
-	//println "PROC_INIT SOUT = ${init_sout}" 
-	//println "PROC_INIT SERR = ${init_serr}"
-	
-	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
-	def proc_apply = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir}/${infra_set}".execute() 
-	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
-	proc_apply.waitForOrKill(9000000)
-	println "PROC_APPLY SOUT = ${apply_sout}" 
-	println "PROC_APPLY SERR = ${apply_serr}"
+public def deploy_green(outputs, terragrunt_working_dir) {
+	println 'Running deploy_green()'
+	def blue = new StringBuilder(), green = new StringBuilder()
+	(blue, green) = get_blue_green(outputs)
+	println "DEPLOYING ${green}"
+	tg_apply(terragrunt_working_dir, green)
 }
 
+
+public def weight_shift(terragrunt_working_dir) {
+	def String infra_set = 'common'
+	def Map outputs = get_outputs(terragrunt_working_dir)
+	(blue, green) = get_blue_green(outputs)
+	println 'Running weight_shift()'
+	Integer x = 0
+	Integer blue_weight_a = outputs.get('blue_weight_a')
+	Integer blue_weight_b = outputs.get('blue_weight_b')
+
+	while (x.compareTo(100).equals(-1)) {
+		// blue weight shift starts here
+		if (blue.compareTo('a').equals(0)) {
+			blue_weight_a = blue_weight_a-10
+			blue_weight_b = blue_weight_b+10
+		}	
+		else if (blue.compareTo('b').equals(0)) {
+			blue_weight_a = blue_weight_a+10
+			blue_weight_b = blue_weight_b-10
+		}	
+		
+		File tfvars = new File("${terragrunt_working_dir}/${infra_set}/terraform.tfvars")
+		if (tfvars.canRead()) {
+			tfvars.delete()
+		}
+		tfvars.append "attach_asg_to = \"${outputs.get('attach_asg_to')}\"\n"
+		tfvars.append "blue_weight_a = ${blue_weight_a}\n"
+		tfvars.append "blue_weight_b = ${blue_weight_b}\n"
+		tfvars.append "green_weight_a = ${outputs.get('green_weight_a')}\n"
+		tfvars.append "green_weight_b = ${outputs.get('green_weight_b')}\n"
+		tg_apply(terragrunt_working_dir, infra_set) // only changes the attach_asg_to var in common
+		println tfvars.getText('UTF-8')
+		tfvars.delete()
+		x = x+10
+	}
+}
 
 
 // Treat here and down as main()
 // Jenkins pipeline would pass around vars in / out instead of this file 
 println "Starting..."
-def Map outputs = get_outputs(terragrunt_working_dir)
-println outputs 
-change_attach_asg_to(outputs, terragrunt_working_dir)
+//def Map outputs = get_outputs(terragrunt_working_dir)
+//println outputs 
+//change_attach_asg_to(outputs, terragrunt_working_dir)
+//deploy_green(outputs, terragrunt_working_dir)
+weight_shift(terragrunt_working_dir)

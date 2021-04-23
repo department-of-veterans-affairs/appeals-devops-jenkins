@@ -48,7 +48,7 @@ public Map get_outputs(terragrunt_working_dir) {
     proc_init.waitForOrKill(9000000)
 	
 	def sout = new StringBuilder(), serr = new StringBuilder()
-  	def proc = "terragrunt output -json --terragrunt-working-dir ${terragrunt_working_dir}/${infra_set}".execute() 
+  	def proc = "terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}/${infra_set}".execute() 
   	proc.consumeProcessOutput(sout, serr) 
   	proc.waitForOrKill(9000000)
   	def object = jsonSlurper.parseText(sout.toString()) 
@@ -72,9 +72,22 @@ public def tg_apply(terragrunt_working_dir, infra_set) {
 	println "PROC_APPLY SOUT = ${apply_sout}" 
 }
 
+public def tg_destroy(terragrunt_working_dir, infra_set) {
+	println "Running tg_destroy()"
+	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
+	def proc_apply = "terragrunt destroy -auto-approve --terragrunt-working-dir ${terragrunt_working_dir}/${infra_set}".execute() 
+	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
+	proc_apply.waitForOrKill(9000000)
+	println "PROC_APPLY SERR = ${apply_serr}"
+	println "PROC_APPLY SOUT = ${apply_sout}" 
+}
+
 // not sure if this is needed but might come in handly later
-public def get_blue_green(outputs) {	
+public def get_blue_green(terragrunt_working_dir) {	
+	// TODO: Might be able to combine this with get_outputs
+	// Can't combine with get_outputs because the way weight_shift works
 	println "Running get_blue_green()"
+	def Map outputs = get_outputs(terragrunt_working_dir)
 	if (outputs.get('blue_weight_a').equals(100)) {
 		blue = 'a'
 	}
@@ -99,7 +112,9 @@ public def get_blue_green(outputs) {
 	return [blue, green]
 }
 
-public def change_attach_asg_to(outputs, terragrunt_working_dir) {
+public def change_attach_asg_to(terragrunt_working_dir) {
+	// TODO: change this to work with get_blue_green instead of get_outputs
+	def Map outputs = get_outputs(terragrunt_working_dir)
 	println "Running change_attach_asg_to()"
 	def String infra_set = 'common'
 	if (outputs.get('blue_weight_a').compareTo(100).equals(0)) {
@@ -124,14 +139,12 @@ public def change_attach_asg_to(outputs, terragrunt_working_dir) {
 	tfvars.append "green_weight_a = ${outputs.get('green_weight_a')}\n"
 	tfvars.append "green_weight_b = ${outputs.get('green_weight_b')}\n"
 	tg_apply(terragrunt_working_dir, infra_set) // only changes the attach_asg_to var in common
-	println tfvars.getText('UTF-8')
 	tfvars.delete()
 }
 
-public def deploy_green(outputs, terragrunt_working_dir) {
+public def deploy_green(terragrunt_working_dir) {
 	println 'Running deploy_green()'
-	def blue = new StringBuilder(), green = new StringBuilder()
-	(blue, green) = get_blue_green(outputs)
+	(blue, green) = get_blue_green(terragrunt_working_dir)
 	println "DEPLOYING ${green}"
 	tg_apply(terragrunt_working_dir, green)
 }
@@ -139,8 +152,8 @@ public def deploy_green(outputs, terragrunt_working_dir) {
 
 public def weight_shift(terragrunt_working_dir) {
 	def String infra_set = 'common'
+	(blue, green) = get_blue_green(terragrunt_working_dir)
 	def Map outputs = get_outputs(terragrunt_working_dir)
-	(blue, green) = get_blue_green(outputs)
 	println 'Running weight_shift()'
 	Integer x = 0
 	Integer blue_weight_a = outputs.get('blue_weight_a')
@@ -172,14 +185,32 @@ public def weight_shift(terragrunt_working_dir) {
 		x = x+10
 		sleep(10000)// sleeps for 10s
 	}
+	// TODO: Add in health check here before looping again
 }
+
+public def destroy_old_blue(terragrunt_working_dir) {
+	println "Running destroy_old_blue()"
+	(blue, green) = get_blue_green(terragrunt_working_dir)
+	if (blue.compareTo('a').equals(0)) {
+		old_blue = 'b'
+	}
+	else if (blue.compareTo('b').equals(0)) {
+    	old_blue = 'a'
+    }
+	println "DESTROYING OLD BLUE ${old_blue}"
+	tg_destroy(terragrunt_working_dir, old_blue)
+}
+
 
 
 // Treat here and down as main()
 // Jenkins pipeline would pass around vars in / out instead of this file 
 println "Starting..."
-//def Map outputs = get_outputs(terragrunt_working_dir)
-//println outputs 
-//change_attach_asg_to(outputs, terragrunt_working_dir)
-//deploy_green(outputs, terragrunt_working_dir)
+change_attach_asg_to(terragrunt_working_dir)
+deploy_green(terragrunt_working_dir)
 weight_shift(terragrunt_working_dir)
+destroy_old_blue(terragrunt_working_dir)
+// TODO: change the value of the green stuff back to whatever green should be
+// This needs to be done before blue greens will work both ways. Becuase of the way deploy_green (also get_blue_green) works
+// TODO: it seems there is an issue with the state lock getting activated often times. Not too sure why
+// However, everything does indeed work when ran individually

@@ -170,6 +170,7 @@ public def weight_shift(terragrunt_working_dir) {
 		println tfvars.getText('UTF-8')
 		tfvars.delete()
 		x = x+10
+		sleep(10000)// sleeps for 10s
 	}
 }
 

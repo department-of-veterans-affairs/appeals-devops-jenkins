@@ -2,6 +2,7 @@
 // Can probably remove the line below
 // package com.example.blue_green;
 import groovy.json.JsonSlurper
+//TODO: Figure out logging. Right now there are a lot of print statements
 /**
  * Hello world!
  *
@@ -19,6 +20,7 @@ import groovy.json.JsonSlurper
  *        if any failure ABORT
 
  * STAGE1 deploy_green
+ * get_outputs()
  * get_blue()
  * change attach_asg_to var, apply 
  * deploy green() // wait for green to respond with 200s
@@ -47,68 +49,76 @@ public String removeBlankSpace(StringBuilder sb) {
   return sb.delete(j, sb.length());
 }
 
-// TODO tomorrow: Test this shit and make sure it works when A=100 and when B=100
-// it should return the current blue deployment
-public def get_blue(String terragrunt_working_dir) {	
+public def get_blue(terragrunt_working_dir) {	
 	println "Running get_blue()"
-	def sout = new StringBuilder(), serr = new StringBuilder()
-	"terragrunt init --terragrunt-working-dir ${terragrunt_working_dir}".execute()
-	def proc_a = "terragrunt output blue_weight_a --terragrunt-working-dir ${terragrunt_working_dir}".execute()
-	proc_a.consumeProcessOutput(sout, serr)
-	proc_a.waitForOrKill(10000)
-	def String blue_weight_a = removeBlankSpace(sout) 
-	if (blue_weight_a.equals('100')) {
+	if (outputs.get('blue_weight_a').equals(100)) {
 		def String blue = 'a'
-	  return blue	
+		return blue	
 	}
-	else {
+	if (outputs.get('blue_weight_b').equals(100)) {
 		def String blue = 'b'
 		return blue
+	} 
+	else {
+		println "ERROR: Neither blue_weight_a or blue_weight_b is set to 100"
+		System.exit(1)
 	}
 }
 
-public def change_attach_asg_to(blue, terragrunt_working_dir) {
-  println "Running change_attach_asg_to()"
-  if (blue.equals('a')) {
-    attach_asg_to = 'b'    
-  }
-  if (blue.equals('b')) {
-    attach_asg_to = 'a'   
-  }
-  File tfvars = new File("${terragrunt_working_dir}/terraform.tfvars")
-  //TODO: use the get_outputs() to get current values and ONLY change the
-  //attach_asg_to value
-  tfvars.append "attach_asg_to = \"${attach_asg_to}\"\n"
-  tfvars.append "blue_weight_a = 100\n"
-  tfvars.append "blue_weight_b = 0\n"
-  tfvars.append "green_weight_a = 0\n"
-  tfvars.append "green_weight_b = 100\n"
-  def sout = new StringBuilder(), serr = new StringBuilder()
-  "terragrunt init --terragrunt-working-dir ${terragrunt_working_dir}".execute()
-  def proc = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
-  proc.consumeProcessOutput(sout, serr) 
-  proc.waitForOrKill(9000000)
-  println sout
-  println serr
-  tfvars.delete()
+public def change_attach_asg_to(outputs, terragrunt_working_dir) {
+	println "Running change_attach_asg_to()"
+	if (outputs.get('blue_weight_a').compareTo(100).equals(0)) {
+		attach_asg_to = 'b'
+		println "ATTACHING TO ${attach_asg_to}"
+	}
+	else if (outputs.get('blue_weight_b').compareTo(100).equals(0)) {
+		attach_asg_to = 'a'
+		println "ATTACHING TO ${attach_asg_to}"
+	}
+	else {
+		println "ERROR: Neither blue_weight_a or blue_weight_b is set to 100"
+		System.exit(1)
+	}
+	File tfvars = new File("${terragrunt_working_dir}/terraform.tfvars")
+	tfvars.append "attach_asg_to = \"${attach_asg_to}\"\n"
+	tfvars.append "blue_weight_a = ${outputs.get('blue_weight_a')}\n"
+	tfvars.append "blue_weight_b = ${outputs.get('blue_weight_b')}\n"
+	tfvars.append "green_weight_a = ${outputs.get('green_weight_a')}\n"
+	tfvars.append "green_weight_b = ${outputs.get('green_weight_b')}\n"
+	def sout = new StringBuilder(), serr = new StringBuilder()
+	"terragrunt init --terragrunt-working-dir ${terragrunt_working_dir}".execute()
+	def proc = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
+	proc.consumeProcessOutput(sout, serr) 
+	proc.waitForOrKill(9000000)
+	println sout
+	println tfvars.getText('UTF-8')
+	tfvars.delete()
 }
 
 public Map get_outputs(terragrunt_working_dir) {
-  def jsonSlurper = new JsonSlurper()
-  "terragrunt init --terragrunt-working-dir ${terragrunt_working_dir}".execute()
-  def sout = new StringBuilder(), serr = new StringBuilder()
-  def proc = "terragrunt output -json --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
-  proc.consumeProcessOutput(sout, serr) 
-  proc.waitForOrKill(9000000)
-  def object = jsonSlurper.parseText(sout.toString()) 
-  object.get('attach_asg_to').get('value')
+  	def jsonSlurper = new JsonSlurper()
+  	"terragrunt init --terragrunt-working-dir ${terragrunt_working_dir}".execute()
+  	def sout = new StringBuilder(), serr = new StringBuilder()
+  	def proc = "terragrunt output -json --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
+  	proc.consumeProcessOutput(sout, serr) 
+  	proc.waitForOrKill(9000000)
+  	def object = jsonSlurper.parseText(sout.toString()) 
+  	def Map outputs = [
+	'attach_asg_to':object.get('attach_asg_to').get('value'),
+  	'blue_weight_a':object.get('blue_weight_a').get('value'), 
+	'blue_weight_b':object.get('blue_weight_b').get('value'),
+	'green_weight_a':object.get('green_weight_a').get('value'),
+	'green_weight_b':object.get('green_weight_b').get('value'),
+  	]
+	return outputs
 }
 
 // Treat here and down as main()
 // Jenkins pipeline would pass around vars in / out instead of this file 
 println "Starting..."
-get_outputs(terragrunt_working_dir)
-//def String blue = get_blue(terragrunt_working_dir)
+def Map outputs = get_outputs(terragrunt_working_dir)
+println outputs 
+//def String blue = get_blue(outputs, terragrunt_working_dir) // This is no longer NEEDED but might be nice to have 
 //println "Blue infrastrucure is ${blue}"
-//change_attach_asg_to(blue, terragrunt_working_dir)
+change_attach_asg_to(outputs, terragrunt_working_dir)
 

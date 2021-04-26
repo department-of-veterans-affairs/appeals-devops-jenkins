@@ -54,7 +54,7 @@ public Map get_outputs(terragrunt_working_dir) {
   	def object = jsonSlurper.parseText(sout.toString()) 
   	def Map outputs = [
 	'attach_asg_to':object.get('attach_asg_to').get('value'),
-  	'blue_weight_a':object.get('blue_weight_a').get('value'), 
+  'blue_weight_a':object.get('blue_weight_a').get('value'), 
 	'blue_weight_b':object.get('blue_weight_b').get('value'),
 	'green_weight_a':object.get('green_weight_a').get('value'),
 	'green_weight_b':object.get('green_weight_b').get('value'),
@@ -84,8 +84,6 @@ public def tg_destroy(terragrunt_working_dir, infra_set) {
 
 // not sure if this is needed but might come in handly later
 public def get_blue_green(terragrunt_working_dir) {	
-	// TODO: Might be able to combine this with get_outputs
-	// Can't combine with get_outputs because the way weight_shift works
 	println "Running get_blue_green()"
 	def Map outputs = get_outputs(terragrunt_working_dir)
 	if (outputs.get('blue_weight_a').equals(100)) {
@@ -113,22 +111,18 @@ public def get_blue_green(terragrunt_working_dir) {
 }
 
 public def change_attach_asg_to(terragrunt_working_dir) {
-	// TODO: change this to work with get_blue_green instead of get_outputs
 	def Map outputs = get_outputs(terragrunt_working_dir)
 	println "Running change_attach_asg_to()"
-	def String infra_set = 'common'
-	if (outputs.get('blue_weight_a').compareTo(100).equals(0)) {
+	(blue, green) = get_blue_green(terragrunt_working_dir)	
+	if (blue.compareTo('a').equals(0)) {
 		attach_asg_to = 'b'
 		println "ATTACHING TO ${attach_asg_to}"
 	}
-	else if (outputs.get('blue_weight_b').compareTo(100).equals(0)) {
+	else if (blue.compareTo('b').equals(0)) {
 		attach_asg_to = 'a'
 		println "ATTACHING TO ${attach_asg_to}"
 	}
-	else {
-		println "ERROR: Neither blue_weight_a or blue_weight_b is set to 100"
-		System.exit(1)
-	}
+	def String infra_set = 'common'
 	File tfvars = new File("${terragrunt_working_dir}/${infra_set}/terraform.tfvars")
 	if (tfvars.canRead()) {
 		tfvars.delete()
@@ -149,12 +143,12 @@ public def deploy_green(terragrunt_working_dir) {
 	tg_apply(terragrunt_working_dir, green)
 }
 
-
 public def weight_shift(terragrunt_working_dir) {
+	println 'Running weight_shift()'
 	def String infra_set = 'common'
 	(blue, green) = get_blue_green(terragrunt_working_dir)
 	def Map outputs = get_outputs(terragrunt_working_dir)
-	println 'Running weight_shift()'
+	
 	Integer x = 0
 	Integer blue_weight_a = outputs.get('blue_weight_a')
 	Integer blue_weight_b = outputs.get('blue_weight_b')
@@ -180,7 +174,6 @@ public def weight_shift(terragrunt_working_dir) {
 		tfvars.append "green_weight_a = ${outputs.get('green_weight_a')}\n"
 		tfvars.append "green_weight_b = ${outputs.get('green_weight_b')}\n"
 		tg_apply(terragrunt_working_dir, infra_set) // only changes the attach_asg_to var in common
-		println tfvars.getText('UTF-8')
 		tfvars.delete()
 		x = x+10
 		sleep(10000)// sleeps for 10s
@@ -201,6 +194,33 @@ public def destroy_old_blue(terragrunt_working_dir) {
 	tg_destroy(terragrunt_working_dir, old_blue)
 }
 
+public def update_green(terragrunt_working_dir) {
+  println "Running update_green()"
+  def String infra_set = 'common'
+  (blue, green) = get_blue_green(terragrunt_working_dir)
+  if (blue.compareTo('a').equals(0)) {
+  	green_weight_a = 0 
+    green_weight_b = 100
+  }
+  else if (blue.compareTo('b').equals(0)) {
+    green_weight_a = 100 
+    green_weight_b = 0
+  }
+  def Map outputs = get_outputs(terragrunt_working_dir)
+  File tfvars = new File("${terragrunt_working_dir}/${infra_set}/terraform.tfvars")
+  if (tfvars.canRead()) {
+  	tfvars.delete()
+  }
+  tfvars.append "attach_asg_to = \"${outputs.get('attach_asg_to')}\"\n"
+  tfvars.append "blue_weight_a = ${outputs.get('blue_weight_a')}\n"
+  tfvars.append "blue_weight_b = ${outputs.get('blue_weight_b')}\n"
+  tfvars.append "green_weight_a = ${green_weight_a}\n"
+  tfvars.append "green_weight_b = ${green_weight_b}\n"
+  tg_apply(terragrunt_working_dir, infra_set)
+  tfvars.delete()
+}
+
+
 
 
 // Treat here and down as main()
@@ -210,7 +230,6 @@ change_attach_asg_to(terragrunt_working_dir)
 deploy_green(terragrunt_working_dir)
 weight_shift(terragrunt_working_dir)
 destroy_old_blue(terragrunt_working_dir)
-// TODO: change the value of the green stuff back to whatever green should be
-// This needs to be done before blue greens will work both ways. Becuase of the way deploy_green (also get_blue_green) works
+update_green(terragrunt_working_dir)
 // TODO: it seems there is an issue with the state lock getting activated often times. Not too sure why
 // However, everything does indeed work when ran individually

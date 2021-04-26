@@ -1,24 +1,13 @@
 #!/usr/bin/env groovy
 // Can probably remove the line below
-// package com.example.blue_green;
+package com.example.blue_green;
 import groovy.json.JsonSlurper
-//TODO: Figure out logging. Right now there are a lot of print statements
+import java.util.logging.Logger
+
+logger = Logger.getLogger('')
+logger.info('Hello from a Job DSL script!')
+
 /**
- * Hello world!
- *
- *
- * public class App 
- * {
- *     public static void main( String[] args )
- *     {
- *         System.out.println( "Hello World!" );
- *     }
- * }
-
- * All of these in one file (skip step 2 for the moment)
- * STAGE0 monitoring (paralell to all other stages) (in the future)
- *        if any failure ABORT
-
  * STAGE1 deploy_green
  * get_outputs()
  * get_blue()
@@ -39,7 +28,7 @@ import groovy.json.JsonSlurper
 def String terragrunt_working_dir = '/Users/bskeen/repository/appeals-terraform/live/uat/revproxy-caseflow-replica'
 
 public Map get_outputs(terragrunt_working_dir) {
-  	println 'Running get_outputs()'
+	logger.info('Running get_outputs()')
 	def String infra_set = 'common'
 	def jsonSlurper = new JsonSlurper()
   	def init_sout = new StringBuilder(), init_serr = new StringBuilder()
@@ -63,28 +52,28 @@ public Map get_outputs(terragrunt_working_dir) {
 }
 
 public def tg_apply(terragrunt_working_dir, infra_set) {
-	println "Running tg_apply()"
+	logger.info('Running tg_apply()')
 	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
 	def proc_apply = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir}/${infra_set}".execute() 
 	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
 	proc_apply.waitForOrKill(9000000)
-	println "PROC_APPLY SERR = ${apply_serr}"
-	println "PROC_APPLY SOUT = ${apply_sout}" 
+	logger.info("PROC_APPLY SERR = ${apply_serr}") // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
+	logger.info("PROC_APPLY SOUT = ${apply_sout}")
 }
 
 public def tg_destroy(terragrunt_working_dir, infra_set) {
-	println "Running tg_destroy()"
+	logger.info('Running tg_destroy()')
 	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
 	def proc_apply = "terragrunt destroy -auto-approve --terragrunt-working-dir ${terragrunt_working_dir}/${infra_set}".execute() 
 	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
 	proc_apply.waitForOrKill(9000000)
-	println "PROC_APPLY SERR = ${apply_serr}"
-	println "PROC_APPLY SOUT = ${apply_sout}" 
+	logger.info("PROC_APPLY SERR = ${apply_serr}") // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
+	logger.info("PROC_APPLY SOUT = ${apply_sout}")
 }
 
 // not sure if this is needed but might come in handly later
 public def get_blue_green(terragrunt_working_dir) {	
-	println "Running get_blue_green()"
+	logger.info("Running get_blue_green()")
 	def Map outputs = get_outputs(terragrunt_working_dir)
 	if (outputs.get('blue_weight_a').equals(100)) {
 		blue = 'a'
@@ -93,7 +82,7 @@ public def get_blue_green(terragrunt_working_dir) {
 		blue = 'b'
 	} 
 	else {
-		println "ERROR: Neither blue_weight_a or blue_weight_b is set to 100"
+		logger.info("ERROR: Neither blue_weight_a or blue_weight_b is set to 100")
 	}
 
 	if (outputs.get('green_weight_a').equals(100)) {
@@ -103,24 +92,24 @@ public def get_blue_green(terragrunt_working_dir) {
 		green = 'b'
 	} 
 	else {
-		println "ERROR: Neither green_weight_a or green_weight_b is set to 100"
+		logger.info("ERROR: Neither green_weight_a or green_weight_b is set to 100")
 	}
-	println "BLUE = ${blue}"
-	println "GREEN = ${green}"
+	logger.info("BLUE = ${blue}")
+	logger.info("GREEN = ${green}")
 	return [blue, green]
 }
 
 public def change_attach_asg_to(terragrunt_working_dir) {
 	def Map outputs = get_outputs(terragrunt_working_dir)
-	println "Running change_attach_asg_to()"
+	logger.info("Running change_attach_asg_to()")
 	(blue, green) = get_blue_green(terragrunt_working_dir)	
 	if (blue.compareTo('a').equals(0)) {
 		attach_asg_to = 'b'
-		println "ATTACHING TO ${attach_asg_to}"
+		logger.info("ATTACHING TO ${attach_asg_to}")
 	}
 	else if (blue.compareTo('b').equals(0)) {
 		attach_asg_to = 'a'
-		println "ATTACHING TO ${attach_asg_to}"
+		logger.info("ATTACHING TO ${attach_asg_to}")
 	}
 	def String infra_set = 'common'
 	File tfvars = new File("${terragrunt_working_dir}/${infra_set}/terraform.tfvars")
@@ -137,14 +126,14 @@ public def change_attach_asg_to(terragrunt_working_dir) {
 }
 
 public def deploy_green(terragrunt_working_dir) {
-	println 'Running deploy_green()'
+	logger.info('Running deploy_green()')
 	(blue, green) = get_blue_green(terragrunt_working_dir)
-	println "DEPLOYING ${green}"
+	logger.info("DEPLOYING ${green}")
 	tg_apply(terragrunt_working_dir, green)
 }
 
 public def weight_shift(terragrunt_working_dir) {
-	println 'Running weight_shift()'
+	logger.info('Running weight_shift()')
 	def String infra_set = 'common'
 	(blue, green) = get_blue_green(terragrunt_working_dir)
 	def Map outputs = get_outputs(terragrunt_working_dir)
@@ -182,7 +171,7 @@ public def weight_shift(terragrunt_working_dir) {
 }
 
 public def destroy_old_blue(terragrunt_working_dir) {
-	println "Running destroy_old_blue()"
+	logger.info("Running destroy_old_blue()")
 	(blue, green) = get_blue_green(terragrunt_working_dir)
 	if (blue.compareTo('a').equals(0)) {
 		old_blue = 'b'
@@ -190,12 +179,12 @@ public def destroy_old_blue(terragrunt_working_dir) {
 	else if (blue.compareTo('b').equals(0)) {
     	old_blue = 'a'
     }
-	println "DESTROYING OLD BLUE ${old_blue}"
+	logger.info("DESTROYING OLD BLUE ${old_blue}")
 	tg_destroy(terragrunt_working_dir, old_blue)
 }
 
 public def update_green(terragrunt_working_dir) {
-  println "Running update_green()"
+  logger.info("Running update_green()")
   def String infra_set = 'common'
   (blue, green) = get_blue_green(terragrunt_working_dir)
   if (blue.compareTo('a').equals(0)) {
@@ -225,11 +214,10 @@ public def update_green(terragrunt_working_dir) {
 
 // Treat here and down as main()
 // Jenkins pipeline would pass around vars in / out instead of this file 
-println "Starting..."
+logger.info("Starting...")
+get_blue_green(terragrunt_working_dir)
 change_attach_asg_to(terragrunt_working_dir)
 deploy_green(terragrunt_working_dir)
 weight_shift(terragrunt_working_dir)
 destroy_old_blue(terragrunt_working_dir)
 update_green(terragrunt_working_dir)
-// TODO: it seems there is an issue with the state lock getting activated often times. Not too sure why
-// However, everything does indeed work when ran individually

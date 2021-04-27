@@ -167,7 +167,6 @@ public def weight_shift(terragrunt_working_dir) {
 		x = x+10
 		sleep(10000)// sleeps for 10s
 	}
-	// TODO: Add in health check here before looping again
 }
 
 public def destroy_old_blue(terragrunt_working_dir) {
@@ -215,9 +214,9 @@ public def update_green(terragrunt_working_dir) {
 // Treat here and down as main()
 // Jenkins pipeline would pass around vars in / out instead of this file 
 logger.info("Starting...")
-get_blue_green(terragrunt_working_dir)
 change_attach_asg_to(terragrunt_working_dir)
 deploy_green(terragrunt_working_dir)
+
 weight_shift(terragrunt_working_dir)
 destroy_old_blue(terragrunt_working_dir)
 update_green(terragrunt_working_dir)

@@ -182,6 +182,19 @@ public def destroy_old_blue(terragrunt_working_dir) {
 	tg_destroy(terragrunt_working_dir, old_blue)
 }
 
+public def destroy_green(terragrunt_working_dir) {
+	logger.info("Running destroy_green()")
+	(blue, green) = get_blue_green(terragrunt_working_dir)
+	if (green.compareTo('a').equals(0)) {
+		green = 'a'
+	}
+	else if (blue.compareTo('b').equals(0)) {
+    	green = 'a'
+    }
+	logger.info("DESTROYING OLD BLUE ${old_blue}")
+	tg_destroy(terragrunt_working_dir, old_blue)
+}
+
 public def update_green(terragrunt_working_dir) {
   logger.info("Running update_green()")
   def String infra_set = 'common'

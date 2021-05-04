@@ -2,6 +2,7 @@
 // Can probably remove the line below
 package com.example.blue_green;
 import groovy.json.JsonSlurper
+import groovy.json.JsonBuilder
 import java.util.logging.Logger
 
 logger = Logger.getLogger('')
@@ -26,16 +27,17 @@ logger = Logger.getLogger('')
 def String terragrunt_working_dir = '/Users/bskeen/repository/appeals-terraform/live/uat/revproxy-caseflow-replica'
 
 def Map asg_desired_values = [
-	'max_size': 2,
-	'min_size': 1,
-	'desired_capacity': 1
+	'max_size': 3,
+	'min_size': 3,
+	'desired_capacity':3 
 ]
 
 
-public def tg_apply(terragrunt_working_dir) {
+public def tg_apply(terragrunt_working_dir, tg_args) {
 	logger.info('Running tg_apply()')
 	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
-	def proc_apply = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
+	
+	def proc_apply = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}".execute() 
 	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
 	proc_apply.waitForOrKill(9000000)
 	logger.info("PROC_APPLY SERR = ${apply_serr}") // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
@@ -61,6 +63,7 @@ public def get_blue_green(terragrunt_working_dir) {
 	'green_weight_a':object.green_weight_a.value,
 	'green_weight_b':object.green_weight_b.value,
 	// TODO: potentially an if here. A might not always be 0 - might be 1 at times
+	// current values of A and B asgs
 	'a_max_size':object.auto_scaling_groups.value[0].max_size,
 	'a_min_size':object.auto_scaling_groups.value[0].min_size,
 	'a_desired_capacity':object.auto_scaling_groups.value[0].desired_capacity,
@@ -95,42 +98,62 @@ public def get_blue_green(terragrunt_working_dir) {
 	return [blue, green, outputs]
 }
 
-public def deploy_green(terragrunt_working_dir) {
+public def deploy_green(terragrunt_working_dir, asg_desired_values) {
 	logger.info('Running deploy_green()')
 	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
 	logger.info("DEPLOYING ${green}")
-	
-	File tfvars = new File("${terragrunt_working_dir}/terraform.tfvars")
-	if (tfvars.canRead()) {
-		tfvars.delete()
-	}
-	tfvars.append "blue_weight_a = ${outputs.blue_weight_a}\n"
-	tfvars.append "blue_weight_b = ${outputs.blue_weight_b}\n"
-	tfvars.append "green_weight_a = ${outputs.green_weight_a}\n"
-	tfvars.append "green_weight_b = ${outputs.green_weight_b}\n"
-	
 	if (green.compareTo('a').equals(0)) {
-	tfvars.append "a_max_size = ${outputs.asg_configs.max_size}\n"
-	tfvars.append "a_min_size = ${outputs.asg_configs.min_size}\n"
-	tfvars.append "a_desired_capacity = ${outputs.asg_configs.desired_capacity}\n"
-	tfvars.append "b_max_size = ${outputs.b_max_size}\n"
-	tfvars.append "b_min_size = ${outputs.b_min_size}\n"
-	tfvars.append "b_desired_capacity = ${outputs.b_desired_capacity}\n"
+		tg_args = "-var='blue_weight_a=${outputs.blue_weight_a}' -var='blue_weight_b=${outputs.blue_weight_b}' -var='green_weight_a=${outputs.green_weight_a}' -var='green_weight_b=${outputs.green_weight_b}' -var='a_max_size=${asg_desired_values.a_max_size}' -var='a_min_size=${asg_desired_values.a_min_size}' -var='a_desired_capacity=${asg_desired_values.desired_capacity}' -var='b_max_size=${outputs.b_max_size}' -var='b_min_size=${outputs.b_min_size}' -var='b_desired_capacity=${outputs.b_desired_capacity}'" 
 	}
 	
 	if (green.compareTo('b').equals(0)) {
-	tfvars.append "a_max_size = ${outputs.a_max_size}\n" // these are actual outputs of ASG
-	tfvars.append "a_min_size = ${outputs.a_min_size}\n"
-	tfvars.append "a_desired_capacity = ${outputs.a_desired_capacity}\n"
-	tfvars.append "b_max_size = ${outputs.asg_configs[1].max_size}\n" // these are desired outputs of ASG
-	tfvars.append "b_min_size = ${outputs.asg_configs[1].min_size}\n"
-	tfvars.append "b_desired_capacity = ${outputs.asg_configs[1].desired_capacity}\n"
+	
+	def Map new_a_asg_configs = [	
+		'suffix':'a',
+		'max_size': outputs.a_max_size,
+		'min_size': outputs.a_min_size,
+		'desired_capacity':outputs.a_desired_capacity
+	]
+	
+	def Map new_b_asg_configs = [
+		'suffix':'b',
+		'max_size': asg_desired_values.max_size ,
+		'min_size': asg_desired_values.min_size ,
+		'desired_capacity': asg_desired_values.desired_capacity
+	]
+	outputs.remove("asg_configs")
+	outputs.remove("a_max_size")
+	outputs.remove("a_min_size")
+	outputs.remove("a_desired_capacity")
+	outputs.remove("b_max_size")
+	outputs.remove("b_min_size")
+	outputs.remove("b_desired_capacity")
+	new_asg_configs = [new_a_asg_configs, new_b_asg_configs]
+	println new_asg_configs	
 	}
-	String fileContents = new File("${terragrunt_working_dir}/terraform.tfvars").getText('UTF-8')
-	println fileContents
-	tg_apply(terragrunt_working_dir)
-	tfvars.delete()
+	
+	tg_args = tg_args_builder(outputs, new_asg_configs)
+	println "terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}"
+	tg_apply(terragrunt_working_dir, tg_args)
 }
+
+public def tg_args_builder(current_outputs, new_asg_configs) {
+	def String tg_args = ""  	
+	for (item in current_outputs) {
+		tg_args = tg_args + "-var=${item.key}=${item.value} "
+	}
+	println tg_args
+	def String asg_configs = ""
+	for (item in new_asg_configs) {
+		def builder = new JsonBuilder()
+		builder(item)
+		asg_configs = asg_configs + builder.toString() + ","
+	}
+	println asg_configs
+	tg_args = tg_args + "-var=asg_configs=[${asg_configs}]"
+	return tg_args
+}
+
 
 public def weight_shift(terragrunt_working_dir) {
 	logger.info('Running weight_shift()')
@@ -282,7 +305,7 @@ public def destroy_green(terragrunt_working_dir) {
 // Jenkins pipeline would pass around vars in / out instead of this file 
 logger.info("Starting...")
 //change_attach_asg_to(terragrunt_working_dir)
-deploy_green(terragrunt_working_dir)
+deploy_green(terragrunt_working_dir, asg_desired_values)
 // def blue_custom_weight_a = 100 
 // def blue_custom_weight_b = 0 
 //custom_blue_weights(terragrunt_working_dir, blue_custom_weight_a, blue_custom_weight_b) 

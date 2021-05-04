@@ -103,43 +103,54 @@ public def deploy_green(terragrunt_working_dir, asg_desired_values) {
 	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
 	logger.info("DEPLOYING ${green}")
 	if (green.compareTo('a').equals(0)) {
-		tg_args = "-var='blue_weight_a=${outputs.blue_weight_a}' -var='blue_weight_b=${outputs.blue_weight_b}' -var='green_weight_a=${outputs.green_weight_a}' -var='green_weight_b=${outputs.green_weight_b}' -var='a_max_size=${asg_desired_values.a_max_size}' -var='a_min_size=${asg_desired_values.a_min_size}' -var='a_desired_capacity=${asg_desired_values.desired_capacity}' -var='b_max_size=${outputs.b_max_size}' -var='b_min_size=${outputs.b_min_size}' -var='b_desired_capacity=${outputs.b_desired_capacity}'" 
+		def Map new_a_asg_configs = [	
+			'suffix':'a',
+			'max_size': asg_desired_values.max_size,
+			'min_size': asg_desired_values.min_size,
+			'desired_capacity': asg_desired_values.desired_capacity
+		]
+		
+		def Map new_b_asg_configs = [
+			'suffix':'b',
+			'max_size':	outputs.b_max_size,
+			'min_size': outputs.b_min_size,
+			'desired_capacity': outputs.b_desired_capacity
+		]
+		new_asg_configs = [new_a_asg_configs, new_b_asg_configs]
 	}
 	
 	if (green.compareTo('b').equals(0)) {
-	
-	def Map new_a_asg_configs = [	
-		'suffix':'a',
-		'max_size': outputs.a_max_size,
-		'min_size': outputs.a_min_size,
-		'desired_capacity':outputs.a_desired_capacity
-	]
-	
-	def Map new_b_asg_configs = [
-		'suffix':'b',
-		'max_size': asg_desired_values.max_size ,
-		'min_size': asg_desired_values.min_size ,
-		'desired_capacity': asg_desired_values.desired_capacity
-	]
-	outputs.remove("asg_configs")
-	outputs.remove("a_max_size")
-	outputs.remove("a_min_size")
-	outputs.remove("a_desired_capacity")
-	outputs.remove("b_max_size")
-	outputs.remove("b_min_size")
-	outputs.remove("b_desired_capacity")
-	new_asg_configs = [new_a_asg_configs, new_b_asg_configs]
-	println new_asg_configs	
+		def Map new_a_asg_configs = [	
+			'suffix':'a',
+			'max_size': outputs.a_max_size,
+			'min_size': outputs.a_min_size,
+			'desired_capacity':outputs.a_desired_capacity
+		]
+		
+		def Map new_b_asg_configs = [
+			'suffix':'b',
+			'max_size': asg_desired_values.max_size,
+			'min_size': asg_desired_values.min_size,
+			'desired_capacity': asg_desired_values.desired_capacity
+		]
+		new_asg_configs = [new_a_asg_configs, new_b_asg_configs]
 	}
 	
 	tg_args = tg_args_builder(outputs, new_asg_configs)
-	println "terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}"
 	tg_apply(terragrunt_working_dir, tg_args)
 }
 
-public def tg_args_builder(current_outputs, new_asg_configs) {
-	def String tg_args = ""  	
-	for (item in current_outputs) {
+public def tg_args_builder(outputs, new_asg_configs) {
+	outputs.remove("asg_configs")
+    outputs.remove("a_max_size")
+    outputs.remove("a_min_size")
+    outputs.remove("a_desired_capacity")
+    outputs.remove("b_max_size")
+    outputs.remove("b_min_size")
+    outputs.remove("b_desired_capacity")
+
+	def String tg_args = ""
+	for (item in outputs) {
 		tg_args = tg_args + "-var=${item.key}=${item.value} "
 	}
 	println tg_args
@@ -162,6 +173,22 @@ public def weight_shift(terragrunt_working_dir) {
 	Integer blue_weight_a = outputs.blue_weight_a
 	Integer blue_weight_b = outputs.blue_weight_b
 	
+	def Map new_a_asg_configs = [	
+		'suffix':'a',
+		'max_size': outputs.a_max_size,
+		'min_size': outputs.a_min_size,
+		'desired_capacity':outputs.a_desired_capacity
+	]
+	
+	def Map new_b_asg_configs = [
+		'suffix':'b',
+		'max_size': outputs.b_max_size,
+		'min_size': outputs.b_min_size,
+		'desired_capacity': outputs.b_desired_capacity
+	]
+	
+	new_asg_configs = [new_a_asg_configs, new_b_asg_configs]
+	
 	while (blue_weight_a != 100 || blue_weight_b != 100) {
 		// blue weight shift starts here
 		if (blue.compareTo('a').equals(0)) {
@@ -177,44 +204,40 @@ public def weight_shift(terragrunt_working_dir) {
 		if (blue_weight_a == 110 || blue_weight_b == 110) {		
         	break	
         }
-
-		File tfvars = new File("${terragrunt_working_dir}/terraform.tfvars")
-		if (tfvars.canRead()) {
-			tfvars.delete()
-		}
-		tfvars.append "attach_asg_to = \"${outputs.attach_asg_to}\"\n"
-		tfvars.append "blue_weight_a = ${blue_weight_a}\n"
-		tfvars.append "blue_weight_b = ${blue_weight_b}\n"
-		tfvars.append "green_weight_a = ${outputs.green_weight_a}\n"
-		tfvars.append "green_weight_b = ${outputs.green_weight_b}\n"
 		
-		tfvars.append "a_max_size = ${outputs.a_max_size}\n"
-		tfvars.append "a_min_size = ${outputs.a_min_size}\n"
-		tfvars.append "a_desired_capacity = ${outputs.a_desired_capacity}\n"
-		tfvars.append "b_max_size = ${outputs.b_max_size}\n"
-		tfvars.append "b_min_size = ${outputs.b_min_size}\n"
-		tfvars.append "b_desired_capacity = ${outputs.b_desired_capacity}\n"
-
-		tg_apply(terragrunt_working_dir) // only changes the attach_asg_to var in common
-		tfvars.delete()
+		outputs["blue_weight_a"] = blue_weight_a
+		outputs["blue_weight_b"] = blue_weight_b
+		
+		tg_args = tg_args_builder(outputs, new_asg_configs)	
+		tg_apply(terragrunt_working_dir, tg_args) 
 		sleep(10000)// sleeps for 10s
 	}
 }
 
 public def custom_blue_weights(terragrunt_working_dir, blue_custom_weight_a, blue_custom_weight_b) {
-	logger.info('Running custom_weights')
+	logger.info('Running custom_blue_weights()')
 	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
-
-	File tfvars = new File("${terragrunt_working_dir}/terraform.tfvars")
-	if (tfvars.canRead()) {
-		tfvars.delete()
-	}
-	tfvars.append "blue_weight_a = ${blue_custom_weight_a}\n"
-	tfvars.append "blue_weight_b = ${blue_custom_weight_b}\n"
-	tfvars.append "green_weight_a = ${outputs.green_weight_a}\n"
-	tfvars.append "green_weight_b = ${outputs.green_weight_b}\n"
-	tg_apply(terragrunt_working_dir) // only changes the attach_asg_to var in common
-	tfvars.delete()
+	
+	outputs["blue_weight_a"] = blue_custom_weight_a
+	outputs["blue_weight_b"] = blue_custom_weight_b
+	
+	def Map new_a_asg_configs = [	
+		'suffix':'a',
+		'max_size': outputs.a_max_size,
+		'min_size': outputs.a_min_size,
+		'desired_capacity':outputs.a_desired_capacity
+	]
+	
+	def Map new_b_asg_configs = [
+		'suffix':'b',
+		'max_size': outputs.b_max_size,
+		'min_size': outputs.b_min_size,
+		'desired_capacity': outputs.b_desired_capacity
+	]
+	
+	new_asg_configs = [new_a_asg_configs, new_b_asg_configs]
+	tg_args = tg_args_builder(outputs, new_asg_configs)	
+	tg_apply(terragrunt_working_dir, tg_args) // only changes the attach_asg_to var in common
 }
 
 public def destroy_old_blue(terragrunt_working_dir) {
@@ -227,94 +250,105 @@ public def destroy_old_blue(terragrunt_working_dir) {
     	old_blue = 'a'
     }
 	logger.info("DESTROYING OLD BLUE ${old_blue}")
-	File tfvars = new File("${terragrunt_working_dir}/terraform.tfvars")
-	if (tfvars.canRead()) {
-		tfvars.delete()
-	}
-	
-	tfvars.append "blue_weight_a = ${outputs.blue_weight_a}\n"
-	tfvars.append "blue_weight_b = ${outputs.blue_weight_b}\n"
-	tfvars.append "green_weight_a = ${outputs.green_weight_a}\n"
-	tfvars.append "green_weight_b = ${outputs.green_weight_b}\n"
 	
 	if (old_blue.compareTo('a').equals(0)) {
-	tfvars.append "green_weight_a = 100\n"
-	tfvars.append "green_weight_b = 0\n"
-	
-	tfvars.append "a_max_size = 0\n"
-	tfvars.append "a_min_size = 0\n"
-	tfvars.append "a_desired_capacity = 0\n"
-	tfvars.append "b_max_size = ${outputs.b_max_size}\n"
-	tfvars.append "b_min_size = ${outputs.b_min_size}\n"
-	tfvars.append "b_desired_capacity = ${outputs.b_desired_capacity}\n"
+		outputs["green_weight_a"] = 100
+		outputs["green_weight_b"] = 0
+		def Map new_a_asg_configs = [	
+			'suffix':'a',
+			'max_size': 0,
+			'min_size': 0,
+			'desired_capacity': 0
+		]
+		
+		def Map new_b_asg_configs = [
+			'suffix':'b',
+			'max_size': outputs.b_max_size,
+			'min_size': outputs.b_min_size,
+			'desired_capacity': outputs.b_desired_capacity
+		]
+		new_asg_configs = [new_a_asg_configs, new_b_asg_configs]	
 	}
 	
 	if (old_blue.compareTo('b').equals(0)) {
-	tfvars.append "green_weight_a = 0\n"
-	tfvars.append "green_weight_b = 100\n"
-	
-	tfvars.append "a_max_size = ${outputs.a_max_size}\n" 
-	tfvars.append "a_min_size = ${outputs.a_min_size}\n"
-	tfvars.append "a_desired_capacity = ${outputs.a_desired_capacity}\n"
-	tfvars.append "b_max_size = 0\n" 
-	tfvars.append "b_min_size = 0\n"
-	tfvars.append "b_desired_capacity = 0\n"
+		outputs["green_weight_a"] = 100
+		outputs["green_weight_b"] = 0
+		def Map new_a_asg_configs = [	
+			'suffix':'a',
+			'max_size': 0, 
+			'min_size': 0,
+			'desired_capacity': 0
+		]
+		
+		def Map new_b_asg_configs = [
+			'suffix':'b',
+			'max_size': outputs.b_max_size,
+			'min_size': outputs.b_min_size,
+			'desired_capacity': outputs.b_desired_capacity
+		]
+		new_asg_configs = [new_a_asg_configs, new_b_asg_configs]	
 	}
 	
-	tg_apply(terragrunt_working_dir)
-	tfvars.delete()
+	tg_args = tg_args_builder(outputs, new_asg_configs)	
+	tg_apply(terragrunt_working_dir, tg_args)
 }
 
 public def destroy_green(terragrunt_working_dir) {
 	logger.info('Running deploy_green()')
 	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
-	logger.info("DEPLOYING ${green}")
+	logger.info("DESTROYING ${green}")
 	
-	File tfvars = new File("${terragrunt_working_dir}/terraform.tfvars")
-	if (tfvars.canRead()) {
-		tfvars.delete()
-	}
-	tfvars.append "blue_weight_a = ${blue_weight_a}\n"
-	tfvars.append "blue_weight_b = ${blue_weight_b}\n"
-	tfvars.append "green_weight_a = ${outputs.green_weight_a}\n"
-	tfvars.append "green_weight_b = ${outputs.green_weight_b}\n"
-	
+	outputs["blue_weight_a"] = outputs.blue_weight_a
+    outputs["blue_weight_b"] = outputs.blue_weight_b
+	outputs["green_weight_a"] = outputs.green_weight_a
+    outputs["green_weight_b"] = outputs.green_weight_b
+
 	if (green.compareTo('a').equals(0)) {
-	tfvars.append "a_max_size = 0\n"
-	tfvars.append "a_min_size = 0\n"
-	tfvars.append "a_desired_capacity = 0\n"
-	tfvars.append "b_max_size = ${outputs.b_max_size}\n"
-	tfvars.append "b_min_size = ${outputs.b_min_size}\n"
-	tfvars.append "b_desired_capacity = ${outputs.b_desired_capacity}\n"
+		def Map new_a_asg_configs = [	
+			'suffix':'a',
+			'max_size': 0, 
+			'min_size': 0,
+			'desired_capacity': 0
+		]
+		
+		def Map new_b_asg_configs = [
+			'suffix':'b',
+			'max_size': outputs.b_max_size,
+			'min_size': outputs.b_min_size,
+			'desired_capacity': outputs.b_desired_capacity
+		]
+		new_asg_configs = [new_a_asg_configs, new_b_asg_configs]
+		tg_args = tg_args_builder(outputs, new_asg_configs)	
 	}
 	
 	if (green.compareTo('b').equals(0)) {
-	tfvars.append "a_max_size = ${outputs.a_max_size}\n" 
-	tfvars.append "a_min_size = ${outputs.a_min_size}\n"
-	tfvars.append "a_desired_capacity = ${outputs.a_desired_capacity}\n"
-	tfvars.append "b_max_size = 0\n" 
-	tfvars.append "b_min_size = 0\n"
-	tfvars.append "b_desired_capacity = 0\n"
+		def Map new_a_asg_configs = [	
+			'suffix':'a',
+			'max_size': outputs.a_max_size,
+			'min_size': outputs.a_min_size,
+			'desired_capacity': outputs.a_desired_capacity
+		]
+		
+		def Map new_b_asg_configs = [
+			'suffix':'b',
+			'max_size': 0, 
+			'min_size': 0, 
+			'desired_capacity': 0 
+		]	
+		new_asg_configs = [new_a_asg_configs, new_b_asg_configs]		
 	}
-	
-	tg_apply(terragrunt_working_dir)
-	tfvars.delete()
+	tg_args = tg_args_builder(outputs, new_asg_configs)	
+	tg_apply(terragrunt_working_dir, tg_args)
 }
 
 // Treat here and down as main()
 // Jenkins pipeline would pass around vars in / out instead of this file 
 logger.info("Starting...")
-//change_attach_asg_to(terragrunt_working_dir)
-deploy_green(terragrunt_working_dir, asg_desired_values)
-// def blue_custom_weight_a = 100 
-// def blue_custom_weight_b = 0 
+//deploy_green(terragrunt_working_dir, asg_desired_values)
+//destroy_green(terragrunt_working_dir)
+//def blue_custom_weight_a = 60 
+//def blue_custom_weight_b = 40 
 //custom_blue_weights(terragrunt_working_dir, blue_custom_weight_a, blue_custom_weight_b) 
 // run_tests() // TODO: figure this out. Probably a script that runs - discuss it with team
-// TODO: add define custom min, max, desired for blue, green 
-//weight_shift(terragrunt_working_dir)
+weight_shift(terragrunt_working_dir)
 //destroy_old_blue(terragrunt_working_dir)
-//update_green(terragrunt_working_dir)
-// TODO: Make all of this work with -var, -var, -var instead of tfvars file. That will take precedence over everything else
-// probably build a func to keep adding to a string of -vars
-// TODO: Get this working locally 
-// TODO: wire up actual A or B logic for asg_configs and auto_scaling_groups instead of relying on list index

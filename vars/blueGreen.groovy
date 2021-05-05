@@ -70,7 +70,6 @@ public def get_blue_green(terragrunt_working_dir) {
 	'b_max_size':object.auto_scaling_groups.value[1].max_size,
 	'b_min_size':object.auto_scaling_groups.value[1].min_size,
 	'b_desired_capacity':object.auto_scaling_groups.value[1].desired_capacity,
-
 	'asg_configs': object.asg_configs.value,
 	]
 	if (outputs.blue_weight_a >= 50) {
@@ -95,6 +94,8 @@ public def get_blue_green(terragrunt_working_dir) {
 		System.exit(1)
 	}
 	logger.info("OUTPUTS = ${outputs}")
+	println blue
+	println green
 	return [blue, green, outputs]
 }
 
@@ -271,8 +272,8 @@ public def destroy_old_blue(terragrunt_working_dir) {
 	}
 	
 	if (old_blue.compareTo('b').equals(0)) {
-		outputs["green_weight_a"] = 100
-		outputs["green_weight_b"] = 0
+		outputs["green_weight_a"] = 0 
+		outputs["green_weight_b"] = 100
 		def Map new_a_asg_configs = [	
 			'suffix':'a',
 			'max_size': 0, 
@@ -342,13 +343,11 @@ public def destroy_green(terragrunt_working_dir) {
 }
 
 // Treat here and down as main()
-// Jenkins pipeline would pass around vars in / out instead of this file 
 logger.info("Starting...")
-//deploy_green(terragrunt_working_dir, asg_desired_values)
-//destroy_green(terragrunt_working_dir)
-//def blue_custom_weight_a = 60 
-//def blue_custom_weight_b = 40 
+deploy_green(terragrunt_working_dir, asg_desired_values)
+//def blue_custom_weight_a = 40 
+//def blue_custom_weight_b = 60 
 //custom_blue_weights(terragrunt_working_dir, blue_custom_weight_a, blue_custom_weight_b) 
 // run_tests() // TODO: figure this out. Probably a script that runs - discuss it with team
 weight_shift(terragrunt_working_dir)
-//destroy_old_blue(terragrunt_working_dir)
+destroy_old_blue(terragrunt_working_dir)

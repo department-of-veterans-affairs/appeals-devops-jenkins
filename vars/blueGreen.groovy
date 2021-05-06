@@ -342,6 +342,18 @@ public def destroy_green(terragrunt_working_dir) {
 	tg_apply(terragrunt_working_dir, tg_args)
 }
 
+public def print_local_dir() {
+	logger.info('RUNNING PRINT_LOCAL_DIR')
+	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
+	
+	def proc_apply = "pwd".execute() 
+	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
+	proc_apply.waitForOrKill(9000000)
+	logger.info("PROC_APPLY SERR = ${apply_serr}") // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
+	logger.info("PROC_APPLY SOUT = ${apply_sout}")
+}
+
+
 // Treat here and down as main()
 logger.info("Starting...")
 //deploy_green(terragrunt_working_dir, asg_desired_values)

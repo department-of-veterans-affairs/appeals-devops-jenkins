@@ -24,13 +24,13 @@ logger = Logger.getLogger('')
 // TODO: remove this when getting pushed into master. This is only for local dev
 // make this into a map value 1 = terragrunt_working_dir
 // value 2 = test location
-def String terragrunt_working_dir = '/Users/bskeen/repository/appeals-terraform/live/uat/revproxy-caseflow-replica'
-
-def Map asg_desired_values = [
-	'max_size': 3,
-	'min_size': 3,
-	'desired_capacity':3 
-]
+//def String terragrunt_working_dir = '/Users/bskeen/repository/appeals-terraform/live/uat/revproxy-caseflow-replica'
+//
+//def Map asg_desired_values = [
+//	'max_size': 3,
+//	'min_size': 3,
+//	'desired_capacity':3 
+//]
 
 
 public def tg_apply(terragrunt_working_dir, tg_args) {

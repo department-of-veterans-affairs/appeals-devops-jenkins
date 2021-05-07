@@ -1,6 +1,4 @@
 #!/usr/bin/env groovy
-// Can probably remove the line below
-//package com.example.blue_green;
 import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
 import java.util.logging.Logger
@@ -105,9 +103,9 @@ def call(Map config) {
 	asg_desired_values = config.desired_values
 //def call(String terragrunt_working_dir, Map asg_desired_values) {
 //public def deploy_green(terragrunt_working_dir, asg_desired_values) {
-	logger.info('Running deploy_green()')
+	println 'Running deploy_green()'
 	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
-	logger.info("DEPLOYING ${green}")
+	println "DEPLOYING ${green}"
 	if (green.compareTo('a').equals(0)) {
 		def Map new_a_asg_configs = [	
 			'suffix':'a',

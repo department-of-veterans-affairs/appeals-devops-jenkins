@@ -354,8 +354,10 @@ public def print_local_dir() {
 }
 
 
+
+print_local_dir()
 // Treat here and down as main()
-logger.info("Starting...")
+//logger.info("Starting...")
 //deploy_green(terragrunt_working_dir, asg_desired_values)
 //def blue_custom_weight_a = 40 
 //def blue_custom_weight_b = 60 

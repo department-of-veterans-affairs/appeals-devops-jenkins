@@ -99,7 +99,8 @@ public def get_blue_green(terragrunt_working_dir) {
 	return [blue, green, outputs]
 }
 
-public def deploy_green(terragrunt_working_dir, asg_desired_values) {
+def call(terragrunt_working_dir, asg_desired_values) {
+//public def deploy_green(terragrunt_working_dir, asg_desired_values) {
 	logger.info('Running deploy_green()')
 	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
 	logger.info("DEPLOYING ${green}")
@@ -342,7 +343,7 @@ public def destroy_green(terragrunt_working_dir) {
 	tg_apply(terragrunt_working_dir, tg_args)
 }
 
-public def print_local_dir() {
+def print_local_dir() {
 	logger.info('RUNNING PRINT_LOCAL_DIR')
 	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
 	

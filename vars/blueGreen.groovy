@@ -360,7 +360,7 @@ def print_local_dir() {
 
 
 
-print_local_dir()
+//print_local_dir()
 // Treat here and down as main()
 //logger.info("Starting...")
 //deploy_green(terragrunt_working_dir, asg_desired_values)

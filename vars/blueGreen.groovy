@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 // Can probably remove the line below
-package com.example.blue_green;
+//package com.example.blue_green;
 import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
 import java.util.logging.Logger

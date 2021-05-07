@@ -99,7 +99,7 @@ public def get_blue_green(terragrunt_working_dir) {
 	return [blue, green, outputs]
 }
 
-def call(Map config)
+def call(Map config) {
 	println "TESTTESTTEST"
 	terragrunt_working_dir = config.tg_work_dir
 	asg_desired_values = config.desired_values

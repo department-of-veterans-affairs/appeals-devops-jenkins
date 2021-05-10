@@ -43,15 +43,15 @@ public def tg_apply(terragrunt_working_dir, tg_args) {
 }
 
 public def get_blue_green(terragrunt_working_dir) {	
-	println "(Running get_blue_green()"
+	println "Running get_blue_green()"
 	def jsonSlurper = new JsonSlurper()
 	def init_sout = new StringBuilder(), init_serr = new StringBuilder()
-	def proc_init =	"terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute()
+	def proc_init =	"/usr/bin/terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute()
 	proc_init.consumeProcessOutput(init_sout, init_serr) 
 	proc_init.waitForOrKill(9000000)
 	
 	def sout = new StringBuilder(), serr = new StringBuilder()
-	def proc = "terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
+	def proc = "/usr/bin/terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
 	proc.consumeProcessOutput(sout, serr) 
 	proc.waitForOrKill(9000000)
 	def object = jsonSlurper.parseText(sout.toString()) 

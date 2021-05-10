@@ -97,12 +97,12 @@ public def get_blue_green(terragrunt_working_dir) {
 	return [blue, green, outputs]
 }
 
-def call(Map config) {
-	println "TESTTESTTEST"
-	terragrunt_working_dir = config.tg_work_dir
-	asg_desired_values = config.desired_values
+//def call(Map config) {
+//	println "TESTTESTTEST"
+//	terragrunt_working_dir = config.tg_work_dir
+//	asg_desired_values = config.desired_values
 //def call(String terragrunt_working_dir, Map asg_desired_values) {
-//public def deploy_green(terragrunt_working_dir, asg_desired_values) {
+public def deploy_green(terragrunt_working_dir, asg_desired_values) {
 	println 'Running deploy_green()'
 	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
 	println "DEPLOYING ${green}"

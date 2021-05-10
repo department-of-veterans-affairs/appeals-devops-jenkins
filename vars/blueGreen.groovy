@@ -43,7 +43,7 @@ public def tg_apply(terragrunt_working_dir, tg_args) {
 }
 
 public def get_blue_green(terragrunt_working_dir) {	
-	println "(Running get_blue_green()")
+	println "(Running get_blue_green()"
 	def jsonSlurper = new JsonSlurper()
 	def init_sout = new StringBuilder(), init_serr = new StringBuilder()
 	def proc_init =	"terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute()

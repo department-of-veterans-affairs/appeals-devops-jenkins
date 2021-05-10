@@ -32,18 +32,18 @@ logger = Logger.getLogger('')
 
 
 public def tg_apply(terragrunt_working_dir, tg_args) {
-	logger.info('Running tg_apply()')
+	println 'Running tg_apply()'
 	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
 	
 	def proc_apply = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}".execute() 
 	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
 	proc_apply.waitForOrKill(9000000)
-	logger.info("PROC_APPLY SERR = ${apply_serr}") // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
-	logger.info("PROC_APPLY SOUT = ${apply_sout}")
+	println "PROC_APPLY SERR = ${apply_serr}" // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
+	println "PROC_APPLY SOUT = ${apply_sout}"
 }
 
 public def get_blue_green(terragrunt_working_dir) {	
-	logger.info("Running get_blue_green()")
+	println "(Running get_blue_green()")
 	def jsonSlurper = new JsonSlurper()
 	def init_sout = new StringBuilder(), init_serr = new StringBuilder()
 	def proc_init =	"terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute()
@@ -77,7 +77,7 @@ public def get_blue_green(terragrunt_working_dir) {
 		blue = 'b'
 	} 
 	else {
-		logger.error("ERROR: Neither blue_weight_a or blue_weight_b is greater than 50")
+		println "ERROR: Neither blue_weight_a or blue_weight_b is greater than 50"
 		System.exit(1)	
 	}
 
@@ -88,10 +88,10 @@ public def get_blue_green(terragrunt_working_dir) {
 		green = 'b'
 	} 
 	else {
-		logger.error("ERROR: Neither green_weight_a or green_weight_b is set to 100")
+		println "ERROR: Neither green_weight_a or green_weight_b is set to 100"
 		System.exit(1)
 	}
-	logger.info("OUTPUTS = ${outputs}")
+	printnl "OUTPUTS = ${outputs}"
 	println blue
 	println green
 	return [blue, green, outputs]
@@ -171,7 +171,7 @@ public def tg_args_builder(outputs, new_asg_configs) {
 
 
 public def weight_shift(terragrunt_working_dir) {
-	logger.info('Running weight_shift()')
+	println 'Running weight_shift()'
 	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
 	
 	Integer blue_weight_a = outputs.blue_weight_a
@@ -219,7 +219,7 @@ public def weight_shift(terragrunt_working_dir) {
 }
 
 public def custom_blue_weights(terragrunt_working_dir, blue_custom_weight_a, blue_custom_weight_b) {
-	logger.info('Running custom_blue_weights()')
+	println 'Running custom_blue_weights()'
 	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
 	
 	outputs["blue_weight_a"] = blue_custom_weight_a
@@ -245,7 +245,7 @@ public def custom_blue_weights(terragrunt_working_dir, blue_custom_weight_a, blu
 }
 
 public def destroy_old_blue(terragrunt_working_dir) {
-	logger.info("Running destroy_old_blue()")
+	println "Running destroy_old_blue()"
 	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
 	if (blue.compareTo('a').equals(0)) {
 		old_blue = 'b'
@@ -253,7 +253,7 @@ public def destroy_old_blue(terragrunt_working_dir) {
 	else if (blue.compareTo('b').equals(0)) {
     	old_blue = 'a'
     }
-	logger.info("DESTROYING OLD BLUE ${old_blue}")
+	println "DESTROYING OLD BLUE ${old_blue}"
 	
 	if (old_blue.compareTo('a').equals(0)) {
 		outputs["green_weight_a"] = 100
@@ -298,9 +298,9 @@ public def destroy_old_blue(terragrunt_working_dir) {
 }
 
 public def destroy_green(terragrunt_working_dir) {
-	logger.info('Running deploy_green()')
+	println 'Running deploy_green()'
 	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
-	logger.info("DESTROYING ${green}")
+	println "DESTROYING ${green}"
 	
 	outputs["blue_weight_a"] = outputs.blue_weight_a
     outputs["blue_weight_b"] = outputs.blue_weight_b
@@ -346,14 +346,14 @@ public def destroy_green(terragrunt_working_dir) {
 }
 
 def print_local_dir() {
-	logger.info('RUNNING PRINT_LOCAL_DIR')
+	println 'RUNNING PRINT_LOCAL_DIR'
 	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
 	
 	def proc_apply = "pwd".execute() 
 	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
 	proc_apply.waitForOrKill(9000000)
-	logger.info("PROC_APPLY SERR = ${apply_serr}") // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
-	logger.info("PROC_APPLY SOUT = ${apply_sout}")
+	println "PROC_APPLY SERR = ${apply_serr}" // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
+	println "PROC_APPLY SOUT = ${apply_sout}"
 }
 
 

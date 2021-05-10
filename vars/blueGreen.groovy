@@ -356,6 +356,17 @@ def print_local_dir() {
 	println "PROC_APPLY SOUT = ${apply_sout}"
 }
 
+def print_workspace(workspace) {
+	println 'RUNNING PRINT_LOCAL_DIR'
+	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
+	
+	def proc_apply = "ls -la ${workspace}".execute() 
+	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
+	proc_apply.waitForOrKill(9000000)
+	println "PROC_APPLY SERR = ${apply_serr}" // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
+	println "PROC_APPLY SOUT = ${apply_sout}"
+}
+
 
 
 //print_local_dir()

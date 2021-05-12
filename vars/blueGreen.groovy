@@ -19,6 +19,7 @@ logger = Logger.getLogger('')
  * destroy_old_blue() 
  * next_deploy_prep() // change green values to correct green values and apply
 */
+
 // TODO: remove this when getting pushed into master. This is only for local dev
 // make this into a map value 1 = terragrunt_working_dir
 // value 2 = test location
@@ -30,12 +31,14 @@ logger = Logger.getLogger('')
 //	'desired_capacity':3 
 //]
 
+def terra_path = "/var/lib/jenkins/terra"
 
 public def tg_apply(terragrunt_working_dir, tg_args) {
 	println 'Running tg_apply()'
 	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
 	
-	def proc_apply = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}".execute() 
+	def proc_apply = "${terra_path}/terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}".execute() 
+	//def proc_apply = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}".execute() 
 	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
 	proc_apply.waitForOrKill(9000000)
 	println "PROC_APPLY SERR = ${apply_serr}" // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
@@ -46,13 +49,15 @@ public def get_blue_green(terragrunt_working_dir) {
 	println "Running get_blue_green()"
 	def jsonSlurper = new JsonSlurper()
 	def init_sout = new StringBuilder(), init_serr = new StringBuilder()
-	def proc_init =	"terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute()
-	//def proc_init =	"/usr/bin/terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute()
+	
+	def proc_init =	"${terra_path}/terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute()
+	//def proc_init =	"terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute()
 	proc_init.consumeProcessOutput(init_sout, init_serr) 
 	proc_init.waitForOrKill(9000000)
 	
 	def sout = new StringBuilder(), serr = new StringBuilder()
-	def proc = "terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
+	def proc = "${terra_path}/terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
+	//def proc = "terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
 	//def proc = "/usr/bin/terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
 	proc.consumeProcessOutput(sout, serr) 
 	proc.waitForOrKill(9000000)
@@ -358,15 +363,9 @@ def print_local_dir() {
 	println "PROC_APPLY SOUT = ${apply_sout}"
 }
 
-def print_workspace(workspace) {
-	println 'RUNNING PRINT_LOCAL_DIR'
-	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
+def terra_install(tg_version, tf_version) {
+	println "Running terra_install()"
 	
-	def proc_apply = "ls -la ${workspace}".execute() 
-	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
-	proc_apply.waitForOrKill(9000000)
-	println "PROC_APPLY SERR = ${apply_serr}" // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
-	println "PROC_APPLY SOUT = ${apply_sout}"
 }
 
 

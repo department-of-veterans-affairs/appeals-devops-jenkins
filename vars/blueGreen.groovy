@@ -52,7 +52,7 @@ public def get_blue_green(terragrunt_working_dir) {
 	
 	def pwd_sout = new StringBuilder(), pwd_serr = new StringBuilder()
 	def pwd_init = "pwd".execute()
-	proc_init.consumeProcessOutput(pwd_sout, pwd_serr) 
+	pwd_init.consumeProcessOutput(pwd_sout, pwd_serr) 
 	println pwd_sout
 	println pwd_serr
 

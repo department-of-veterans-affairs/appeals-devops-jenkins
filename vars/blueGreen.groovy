@@ -35,8 +35,8 @@ def terra_path = "/var/lib/jenkins/terra"
 
 public def tg_apply(terragrunt_working_dir, tg_args) {
 	println 'Running tg_apply()'
-	println "${terra_path}/terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}"
 	def terra_path = "/var/lib/jenkins/terra"
+	println "${terra_path}/terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}"
 	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
 	
 	def proc_apply = "${terra_path}/terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}".execute() 
@@ -49,8 +49,8 @@ public def tg_apply(terragrunt_working_dir, tg_args) {
 
 public def get_blue_green(terragrunt_working_dir) {	
 	println "Running get_blue_green()"
-	println "${terra_path}/terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}"
 	def terra_path = "/var/lib/jenkins/terra"
+	println "${terra_path}/terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}"
 	def jsonSlurper = new JsonSlurper()
 	def init_sout = new StringBuilder(), init_serr = new StringBuilder()
 	

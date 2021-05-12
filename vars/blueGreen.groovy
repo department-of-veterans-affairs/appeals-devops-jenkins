@@ -31,8 +31,6 @@ logger = Logger.getLogger('')
 //	'desired_capacity':3 
 //]
 
-def terra_path = "/var/lib/jenkins/terra"
-
 public def tg_apply(terragrunt_working_dir, tg_args) {
 	println 'Running tg_apply()'
 	def terra_path = "/var/lib/jenkins/terra"
@@ -51,6 +49,16 @@ public def get_blue_green(terragrunt_working_dir) {
 	println "Running get_blue_green()"
 	def terra_path = "/var/lib/jenkins/terra"
 	println "${terra_path}/terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}"
+	
+	def pwd_sout = new StringBuilder(), pwd_serr = new StringBuilder()
+	def pwd_init = "pwd".execute()
+	proc_init.consumeProcessOutput(pwd_sout, pwd_serr) 
+	println pwd_sout
+	println pwd_serr
+
+
+
+
 	def jsonSlurper = new JsonSlurper()
 	def init_sout = new StringBuilder(), init_serr = new StringBuilder()
 	

@@ -48,20 +48,19 @@ public def tg_apply(terragrunt_working_dir, tg_args) {
 public def get_blue_green(terragrunt_working_dir) {	
 	println "Running get_blue_green()"
 	def terra_path = "/var/lib/jenkins/terra"
-	println "${terra_path}/terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}"
+	
 	
 	def pwd_sout = new StringBuilder(), pwd_serr = new StringBuilder()
 	def pwd_init = "pwd".execute()
 	pwd_init.consumeProcessOutput(pwd_sout, pwd_serr) 
+	println "JUST RAN PWD"
 	println pwd_sout
 	println pwd_serr
-
-
-
+	println "${terra_path}/terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}"
+	
 
 	def jsonSlurper = new JsonSlurper()
 	def init_sout = new StringBuilder(), init_serr = new StringBuilder()
-	
 	def proc_init =	"${terra_path}/terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute()
 	//def proc_init =	"terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute()
 	proc_init.consumeProcessOutput(init_sout, init_serr) 

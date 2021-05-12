@@ -33,7 +33,8 @@ logger = Logger.getLogger('')
 
 public def tg_apply(terragrunt_working_dir, tg_args) {
 	println 'Running tg_apply()'
-	def terra_path = "/var/lib/jenkins/terra"
+	def terra_path = "/Users/bskeen/.local/bin"
+	//def terra_path = "/var/lib/jenkins/terra"
 	println "${terra_path}/terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}"
 	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
 	
@@ -47,7 +48,8 @@ public def tg_apply(terragrunt_working_dir, tg_args) {
 
 public def get_blue_green(terragrunt_working_dir) {	
 	println "Running get_blue_green()"
-	def terra_path = "/var/lib/jenkins/terra"
+	def terra_path = "/Users/bskeen/.local/bin"
+	//def terra_path = "/var/lib/jenkins/terra"
 	
 	
 	def pwd_sout = new StringBuilder(), pwd_serr = new StringBuilder()
@@ -232,7 +234,7 @@ public def weight_shift(terragrunt_working_dir) {
 		
 		tg_args = tg_args_builder(outputs, new_asg_configs)	
 		tg_apply(terragrunt_working_dir, tg_args) 
-		sleep(10000)// sleeps for 10s
+		sleep(10)// sleeps for 10s
 	}
 }
 

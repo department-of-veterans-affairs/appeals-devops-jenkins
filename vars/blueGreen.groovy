@@ -1,74 +1,40 @@
 #!/usr/bin/env groovy
 import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
-import java.util.logging.Logger
-
-logger = Logger.getLogger('')
 
 /**
  * STAGE1 deploy_green
- * get_blue()
- * change attach_asg_to var, apply 
- * deploy green() // wait for green to respond with 200s
   
- * STAGE2 smoke_testing
- * run_tests(jenkins var for running the tests)
+ * STAGE2 run_tests_on_green 
  
- * STAGE3 transition
- * weight_shift() // this is done via the weights in grunt with 200s
- * destroy_old_blue() 
- * next_deploy_prep() // change green values to correct green values and apply
+ * STAGE3 if green_test_result = true: weight shift
+ 
+ * STAGE4 destroy_old_blue
+
 */
 
-// TODO: remove this when getting pushed into master. This is only for local dev
-// make this into a map value 1 = terragrunt_working_dir
-// value 2 = test location
-//def String terragrunt_working_dir = '/Users/bskeen/repository/appeals-terraform/live/uat/revproxy-caseflow-replica'
-//
-//def Map asg_desired_values = [
-//	'max_size': 3,
-//	'min_size': 3,
-//	'desired_capacity':3 
-//]
-
-public def tg_apply(terragrunt_working_dir, tg_args) {
+public def tg_apply(terragrunt_working_dir, tg_args, terra_info) {
 	println 'Running tg_apply()'
-	def terra_path = "/var/lib/jenkins/terra"
-	println "${terra_path}/terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}"
-	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
 	
-	def proc_apply = "${terra_path}/terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}".execute() 
-	//def proc_apply = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args}".execute() 
+	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
+	def proc_apply = "${terra_info.terra_path}/terragrunt/terragrunt${terra_info.tgrunt_version} apply -auto-approve --terragrunt-working-dir ${terragrunt_working_dir} ${tg_args} --terragrunt-tfpath ${terra_info.terra_path}/terraform/terraform${terra_info.tform_version}".execute() 
 	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
 	proc_apply.waitForOrKill(9000000)
 	println "PROC_APPLY SERR = ${apply_serr}" // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
 	println "PROC_APPLY SOUT = ${apply_sout}"
 }
 
-public def get_blue_green(terragrunt_working_dir) {	
+public def get_blue_green(terragrunt_working_dir, terra_info) {	
 	println "Running get_blue_green()"
-	def terra_path = "/var/lib/jenkins/terra"
 	
-	def pwd_sout = new StringBuilder(), pwd_serr = new StringBuilder()
-	def pwd_init = "pwd".execute()
-	pwd_init.consumeProcessOutput(pwd_sout, pwd_serr) 
-	println "JUST RAN PWD"
-	println pwd_sout
-	println pwd_serr
-	println "${terra_path}/terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}"
-	
-
 	def jsonSlurper = new JsonSlurper()
 	def init_sout = new StringBuilder(), init_serr = new StringBuilder()
-	def proc_init =	"${terra_path}/terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute()
-	//def proc_init =	"terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute()
+	def proc_init =	"${terra_info.terra_path}/terragrunt/terragrunt${terra_info.tgrunt_version} init --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir} --terragrunt-tfpath ${terra_info.terra_path}/terraform/terraform${terra_info.tform_version}".execute()
 	proc_init.consumeProcessOutput(init_sout, init_serr) 
 	proc_init.waitForOrKill(9000000)
 	
 	def sout = new StringBuilder(), serr = new StringBuilder()
-	def proc = "${terra_path}/terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
-	//def proc = "terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
-	//def proc = "/usr/bin/terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir}".execute() 
+	def proc = "${terra_info.terra_path}/terragrunt/terragrunt${terra_info.tgrunt_version} output -json --terragrunt-source-update --terragrunt-working-dir ${terragrunt_working_dir} --terragrunt-tfpath ${terra_info.terra_path}/terraform/terraform${terra_info.tform_version}".execute() 
 	proc.consumeProcessOutput(sout, serr) 
 	proc.waitForOrKill(9000000)
 	def object = jsonSlurper.parseText(sout.toString()) 
@@ -77,8 +43,7 @@ public def get_blue_green(terragrunt_working_dir) {
 	'blue_weight_b':object.blue_weight_b.value,
 	'green_weight_a':object.green_weight_a.value,
 	'green_weight_b':object.green_weight_b.value,
-	// TODO: potentially an if here. A might not always be 0 - might be 1 at times
-	// current values of A and B asgs
+	
 	'a_max_size':object.auto_scaling_groups.value[0].max_size,
 	'a_min_size':object.auto_scaling_groups.value[0].min_size,
 	'a_desired_capacity':object.auto_scaling_groups.value[0].desired_capacity,
@@ -114,14 +79,9 @@ public def get_blue_green(terragrunt_working_dir) {
 	return [blue, green, outputs]
 }
 
-//def call(Map config) {
-//	println "TESTTESTTEST"
-//	terragrunt_working_dir = config.tg_work_dir
-//	asg_desired_values = config.desired_values
-//def call(String terragrunt_working_dir, Map asg_desired_values) {
-public def deploy_green(terragrunt_working_dir, asg_desired_values) {
+public def deploy_green(terragrunt_working_dir, asg_desired_values, terra_info) {
 	println 'Running deploy_green()'
-	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
+	(blue, green, outputs) = get_blue_green(terragrunt_working_dir, terra_info)
 	println "DEPLOYING ${green}"
 	if (green.compareTo('a').equals(0)) {
 		def Map new_a_asg_configs = [	
@@ -158,7 +118,7 @@ public def deploy_green(terragrunt_working_dir, asg_desired_values) {
 	}
 	
 	tg_args = tg_args_builder(outputs, new_asg_configs)
-	tg_apply(terragrunt_working_dir, tg_args)
+	tg_apply(terragrunt_working_dir, tg_args, terra_info)
 }
 
 public def tg_args_builder(outputs, new_asg_configs) {
@@ -258,7 +218,7 @@ public def custom_blue_weights(terragrunt_working_dir, blue_custom_weight_a, blu
 	
 	new_asg_configs = [new_a_asg_configs, new_b_asg_configs]
 	tg_args = tg_args_builder(outputs, new_asg_configs)	
-	tg_apply(terragrunt_working_dir, tg_args) // only changes the attach_asg_to var in common
+	tg_apply(terragrunt_working_dir, tg_args) 
 }
 
 public def destroy_old_blue(terragrunt_working_dir) {
@@ -361,24 +321,6 @@ public def destroy_green(terragrunt_working_dir) {
 	tg_args = tg_args_builder(outputs, new_asg_configs)	
 	tg_apply(terragrunt_working_dir, tg_args)
 }
-
-def print_local_dir() {
-	println 'RUNNING PRINT_LOCAL_DIR'
-	def apply_sout = new StringBuilder(), apply_serr = new StringBuilder()
-	
-	def proc_apply = "ls -la".execute() 
-	proc_apply.consumeProcessOutput(apply_sout, apply_serr) 
-	proc_apply.waitForOrKill(9000000)
-	println "PROC_APPLY SERR = ${apply_serr}" // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
-	println "PROC_APPLY SOUT = ${apply_sout}"
-}
-
-def terra_install(tg_version, tf_version) {
-	println "Running terra_install()"
-	
-}
-
-
 
 //print_local_dir()
 // Treat here and down as main()

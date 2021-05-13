@@ -147,9 +147,9 @@ public def tg_args_builder(outputs, new_asg_configs) {
 }
 
 
-public def weight_shift(terragrunt_working_dir) {
+public def weight_shift(terragrunt_working_dir, terra_info) {
 	println 'Running weight_shift()'
-	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
+	(blue, green, outputs) = get_blue_green(terragrunt_working_dir, terra_info)
 	
 	Integer blue_weight_a = outputs.blue_weight_a
 	Integer blue_weight_b = outputs.blue_weight_b
@@ -190,14 +190,14 @@ public def weight_shift(terragrunt_working_dir) {
 		outputs["blue_weight_b"] = blue_weight_b
 		
 		tg_args = tg_args_builder(outputs, new_asg_configs)	
-		tg_apply(terragrunt_working_dir, tg_args) 
+		tg_apply(terragrunt_working_dir, tg_args, terra_info) 
 		sleep(10)// sleeps for 10s
 	}
 }
 
-public def custom_blue_weights(terragrunt_working_dir, blue_custom_weight_a, blue_custom_weight_b) {
+public def custom_blue_weights(terragrunt_working_dir, blue_custom_weight_a, blue_custom_weight_b, terra_info) {
 	println 'Running custom_blue_weights()'
-	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
+	(blue, green, outputs) = get_blue_green(terragrunt_working_dir, terra_info)
 	
 	outputs["blue_weight_a"] = blue_custom_weight_a
 	outputs["blue_weight_b"] = blue_custom_weight_b
@@ -218,12 +218,12 @@ public def custom_blue_weights(terragrunt_working_dir, blue_custom_weight_a, blu
 	
 	new_asg_configs = [new_a_asg_configs, new_b_asg_configs]
 	tg_args = tg_args_builder(outputs, new_asg_configs)	
-	tg_apply(terragrunt_working_dir, tg_args) 
+	tg_apply(terragrunt_working_dir, tg_args, terra_info) 
 }
 
-public def destroy_old_blue(terragrunt_working_dir) {
+public def destroy_old_blue(terragrunt_working_dir, terra_info) {
 	println "Running destroy_old_blue()"
-	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
+	(blue, green, outputs) = get_blue_green(terragrunt_working_dir, terra_info)
 	if (blue.compareTo('a').equals(0)) {
 		old_blue = 'b'
 	}
@@ -271,12 +271,12 @@ public def destroy_old_blue(terragrunt_working_dir) {
 	}
 	
 	tg_args = tg_args_builder(outputs, new_asg_configs)	
-	tg_apply(terragrunt_working_dir, tg_args)
+	tg_apply(terragrunt_working_dir, tg_args, terra_info)
 }
 
-public def destroy_green(terragrunt_working_dir) {
+public def destroy_green(terragrunt_working_dir, terra_info) {
 	println 'Running deploy_green()'
-	(blue, green, outputs) = get_blue_green(terragrunt_working_dir)
+	(blue, green, outputs) = get_blue_green(terragrunt_working_dir, terra_info)
 	println "DESTROYING ${green}"
 	
 	outputs["blue_weight_a"] = outputs.blue_weight_a
@@ -319,7 +319,7 @@ public def destroy_green(terragrunt_working_dir) {
 		new_asg_configs = [new_a_asg_configs, new_b_asg_configs]		
 	}
 	tg_args = tg_args_builder(outputs, new_asg_configs)	
-	tg_apply(terragrunt_working_dir, tg_args)
+	tg_apply(terragrunt_working_dir, tg_args, terra_info)
 }
 
 //print_local_dir()

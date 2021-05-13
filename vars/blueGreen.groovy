@@ -256,16 +256,16 @@ public def destroy_old_blue(terragrunt_working_dir, terra_info) {
 		outputs["green_weight_b"] = 100
 		def Map new_a_asg_configs = [	
 			'suffix':'a',
-			'max_size': 0, 
-			'min_size': 0,
-			'desired_capacity': 0
+			'max_size': outputs.a_max_size, 
+			'min_size': outputs.a_min_size,
+			'desired_capacity': outputs.a_desired_capacity
 		]
 		
 		def Map new_b_asg_configs = [
 			'suffix':'b',
-			'max_size': outputs.b_max_size,
-			'min_size': outputs.b_min_size,
-			'desired_capacity': outputs.b_desired_capacity
+			'max_size': 0,
+			'min_size': 0,
+			'desired_capacity': 0 
 		]
 		new_asg_configs = [new_a_asg_configs, new_b_asg_configs]	
 	}

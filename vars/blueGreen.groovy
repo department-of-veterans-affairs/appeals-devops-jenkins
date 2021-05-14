@@ -321,13 +321,3 @@ public def destroy_green(terragrunt_working_dir, terra_info) {
 	tg_apply(terragrunt_working_dir, tg_args, terra_info)
 }
 
-//print_local_dir()
-// Treat here and down as main()
-//logger.info("Starting...")
-//deploy_green(terragrunt_working_dir, asg_desired_values)
-//def blue_custom_weight_a = 40 
-//def blue_custom_weight_b = 60 
-//custom_blue_weights(terragrunt_working_dir, blue_custom_weight_a, blue_custom_weight_b) 
-// run_tests() // TODO: figure this out. Probably a script that runs - discuss it with team
-//weight_shift(terragrunt_working_dir)
-//destroy_old_blue(terragrunt_working_dir)

@@ -74,8 +74,8 @@ public def get_blue_green(terragrunt_working_dir, terra_info) {
 		System.exit(1)
 	}
 	println "OUTPUTS = ${outputs}"
-	println blue
-	println green
+	println "BLUE = ${blue}"
+	println "GREEN = ${green}"
 	return [blue, green, outputs]
 }
 
@@ -134,18 +134,17 @@ public def tg_args_builder(outputs, new_asg_configs) {
 	for (item in outputs) {
 		tg_args = tg_args + "-var=${item.key}=${item.value} "
 	}
-	println tg_args
+	//println tg_args
 	def String asg_configs = ""
 	for (item in new_asg_configs) {
 		def builder = new JsonBuilder()
 		builder(item)
 		asg_configs = asg_configs + builder.toString() + ","
 	}
-	println asg_configs
+	//println asg_configs
 	tg_args = tg_args + "-var=asg_configs=[${asg_configs}]"
 	return tg_args
 }
-
 
 public def weight_shift(terragrunt_working_dir, terra_info) {
 	println 'Running weight_shift()'

@@ -39,38 +39,38 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
 	proc.waitForOrKill(9000000)
 	def object = jsonSlurper.parseText(sout.toString()) 
 	def Map outputs = [
-	'blueWeightA':object.blue_weight_a.value, 
-	'blueWeightB':object.blue_weight_b.value,
-	'greenWeightA':object.green_weight_a.value,
-	'greenWeightB':object.green_weight_b.value,
+	'blue_weight_a':object.blue_weight_a.value, 
+	'blue_weight_b':object.blue_weight_b.value,
+	'green_weight_a':object.green_weight_a.value,
+	'green_weight_b':object.green_weight_b.value,
 	
-	'aMaxSize':object.auto_scaling_groups.value[0].maxSize,
-	'aMinSize':object.auto_scaling_groups.value[0].minSize,
-	'aDesiredCapacity':object.auto_scaling_groups.value[0].desiredCapacity,
-	'bMaxSize':object.auto_scaling_groups.value[1].maxSize,
-	'bMinSize':object.auto_scaling_groups.value[1].minSize,
-	'bDesiredCapacity':object.auto_scaling_groups.value[1].desiredCapacity,
-	'asgConfigs': object.asg_configs.value,
+	'a_max_size':object.auto_scaling_groups.value[0].max_size,
+	'a_min_size':object.auto_scaling_groups.value[0].min_size,
+	'a_desired_capacity':object.auto_scaling_groups.value[0].desired_capacity,
+	'b_max_size':object.auto_scaling_groups.value[1].max_size,
+	'b_min_size':object.auto_scaling_groups.value[1].min_size,
+	'b_desired_capacity':object.auto_scaling_groups.value[1].desired_capacity,
+	'asg_configs': object.asg_configs.value,
 	]
-	if (outputs.blueWeightA >= 50) {
+	if (outputs.blue_weight_a >= 50) {
 		blue = 'a'
 	}
-	else if (outputs.blueWeightB >= 50) {
+	else if (outputs.blue_weight_b >= 50) {
 		blue = 'b'
 	} 
 	else {
-		println "ERROR: Neither blueWeightA or blueWeightB is greater than 50"
+		println "ERROR: Neither blue_weight_a or blue_weight_b is greater than 50"
 		System.exit(1)	
 	}
 
-	if (outputs.greenWeightA.equals(100)) {
+	if (outputs.green_weight_a.equals(100)) {
 		green = 'a'
 	}
-	else if (outputs.greenWeightB.equals(100)) {
+	else if (outputs.green_weight_b.equals(100)) {
 		green = 'b'
 	} 
 	else {
-		println "ERROR: Neither greenWeightA or greenWeightB is set to 100"
+		println "ERROR: Neither green_weight_a or green_weight_b is set to 100"
 		System.exit(1)
 	}
 	println "OUTPUTS = ${outputs}"
@@ -86,16 +86,16 @@ public def deployGreen(terragruntWorkingDir, asgDesiredValues, terraInfo) {
 	if (green.compareTo('a').equals(0)) {
 		def Map newAAsgConfigs = [	
 			'suffix':'a',
-			'maxSize': asgDesiredValues.maxSize,
-			'minSize': asgDesiredValues.minSize,
-			'desiredCapacity': asgDesiredValues.desiredCapacity
+			'max_size': asgDesiredValues.maxSize,
+			'min_size': asgDesiredValues.minSize,
+			'desired_capacity': asgDesiredValues.desiredCapacity
 		]
 		
 		def Map newBAsgConfigs = [
 			'suffix':'b',
-			'maxSize':	outputs.bMaxSize,
-			'minSize': outputs.bMinSize,
-			'desiredCapacity': outputs.bDesiredCapacity
+			'max_size':	outputs.b_max_size,
+			'min_size': outputs.b_min_size,
+			'desired_capacity': outputs.b_desired_capacity
 		]
 		newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
 	}
@@ -103,16 +103,16 @@ public def deployGreen(terragruntWorkingDir, asgDesiredValues, terraInfo) {
 	if (green.compareTo('b').equals(0)) {
 		def Map newAAsgConfigs = [	
 			'suffix':'a',
-			'maxSize': outputs.aMaxSize,
-			'minSize': outputs.aMinSize,
-			'desiredCapacity':outputs.aDesiredCapacity
+			'max_size': outputs.a_max_size,
+			'min_size': outputs.a_min_size,
+			'desired_capacity':outputs.a_desired_capacity
 		]
 		
 		def Map newBAsgConfigs = [
 			'suffix':'b',
-			'maxSize': asgDesiredValues.maxSize,
-			'minSize': asgDesiredValues.minSize,
-			'desiredCapacity': asgDesiredValues.desiredCapacity
+			'max_size': asgDesiredValues.maxSize,
+			'min_size': asgDesiredValues.minSize,
+			'desired_capacity': asgDesiredValues.desiredCapacity
 		]
 		newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
 	}
@@ -122,13 +122,13 @@ public def deployGreen(terragruntWorkingDir, asgDesiredValues, terraInfo) {
 }
 
 public def tgArgsBuilder(outputs, newAsgConfigs) {
-	outputs.remove("asgConfigs")
-    outputs.remove("aMaxSize")
-    outputs.remove("aMinSize")
-    outputs.remove("aDesiredCapacity")
-    outputs.remove("bMaxSize")
-    outputs.remove("bMinSize")
-    outputs.remove("bDesiredCapacity")
+	outputs.remove("asg_configs")
+    outputs.remove("a_max_size")
+    outputs.remove("a_min_size")
+    outputs.remove("a_desired_capacity")
+    outputs.remove("b_max_size")
+    outputs.remove("b_min_size")
+    outputs.remove("b_desired_capacity")
 
 	def String tgArgs = ""
 	for (item in outputs) {
@@ -142,7 +142,7 @@ public def tgArgsBuilder(outputs, newAsgConfigs) {
 		asgConfigs = asgConfigs + builder.toString() + ","
 	}
 	//println asgConfigs
-	tgArgs = tgArgs + "-var=asgConfigs=[${asgConfigs}]"
+	tgArgs = tgArgs + "-var=asg_configs=[${asgConfigs}]"
 	return tgArgs
 }
 
@@ -150,21 +150,21 @@ public def weightShift(terragruntWorkingDir, terraInfo) {
 	println 'Running weightShift()'
 	(blue, green, outputs) = getBlueGreen(terragruntWorkingDir, terraInfo)
 	
-	Integer blueWeightA = outputs.blueWeightA
-	Integer blueWeightB = outputs.blueWeightB
+	Integer blueWeightA = outputs.blue_weight_a
+	Integer blueWeightB = outputs.blue_weight_b
 	
 	def Map newAAsgConfigs = [	
 		'suffix':'a',
-		'maxSize': outputs.aMaxSize,
-		'minSize': outputs.aMinSize,
-		'desiredCapacity':outputs.aDesiredCapacity
+		'max_size': outputs.a_max_size,
+		'min_size': outputs.a_min_size,
+		'desired_capacity':outputs.a_desired_capacity
 	]
 	
 	def Map newBAsgConfigs = [
 		'suffix':'b',
-		'maxSize': outputs.bMaxSize,
-		'minSize': outputs.bMinSize,
-		'desiredCapacity': outputs.bDesiredCapacity
+		'max_size': outputs.b_max_size,
+		'min_size': outputs.b_min_size,
+		'desired_capacity': outputs.b_desired_capacity
 	]
 	
 	newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
@@ -185,8 +185,8 @@ public def weightShift(terragruntWorkingDir, terraInfo) {
         	break	
         }
 		
-		outputs["blueWeightA"] = blueWeightA
-		outputs["blueWeightB"] = blueWeightB
+		outputs["blue_weight_a"] = blueWeightA
+		outputs["blue_weight_b"] = blueWeightB
 		
 		tgArgs = tgArgsBuilder(outputs, newAsgConfigs)	
 		tgApply(terragruntWorkingDir, tgArgs, terraInfo) 
@@ -198,21 +198,21 @@ public def customBlueWeights(terragruntWorkingDir, blueCustomWeightA, blueCustom
 	println 'Running customBlueWeights()'
 	(blue, green, outputs) = getBlueGreen(terragruntWorkingDir, terraInfo)
 	
-	outputs["blueWeightA"] = blueCustomWeightA
-	outputs["blueWeightB"] = blueCustomWeightB
+	outputs["blue_weight_a"] = blueCustomWeightA
+	outputs["blue_weight_b"] = blueCustomWeightB
 	
 	def Map newAAsgConfigs = [	
 		'suffix':'a',
-		'maxSize': outputs.aMaxSize,
-		'minSize': outputs.aMinSize,
-		'desiredCapacity':outputs.aDesiredCapacity
+		'max_size': outputs.a_max_size,
+		'min_size': outputs.a_min_size,
+		'desired_capacity':outputs.a_desired_capacity
 	]
 	
 	def Map newBAsgConfigs = [
 		'suffix':'b',
-		'maxSize': outputs.bMaxSize,
-		'minSize': outputs.bMinSize,
-		'desiredCapacity': outputs.bDesiredCapacity
+		'max_size': outputs.b_max_size,
+		'min_size': outputs.b_min_size,
+		'desired_capacity': outputs.b_desired_capacity
 	]
 	
 	newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
@@ -232,39 +232,39 @@ public def destroyOldBlue(terragruntWorkingDir, terraInfo) {
 	println "DESTROYING OLD BLUE ${old_blue}"
 	
 	if (old_blue.compareTo('a').equals(0)) {
-		outputs["greenWeightA"] = 100
-		outputs["greenWeightB"] = 0
+		outputs["green_weight_a"] = 100
+		outputs["green_weight_b"] = 0
 		def Map newAAsgConfigs = [	
 			'suffix':'a',
-			'maxSize': 0,
-			'minSize': 0,
-			'desiredCapacity': 0
+			'max_size': 0,
+			'min_size': 0,
+			'desired_capacity': 0
 		]
 		
 		def Map newBAsgConfigs = [
 			'suffix':'b',
-			'maxSize': outputs.bMaxSize,
-			'minSize': outputs.bMinSize,
-			'desiredCapacity': outputs.bDesiredCapacity
+			'max_size': outputs.b_max_size,
+			'min_size': outputs.b_min_size,
+			'desired_capacity': outputs.b_desired_capacity
 		]
 		newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]	
 	}
 	
 	if (old_blue.compareTo('b').equals(0)) {
-		outputs["greenWeightA"] = 0 
-		outputs["greenWeightB"] = 100
+		outputs["green_weight_a"] = 0 
+		outputs["green_weight_b"] = 100
 		def Map newAAsgConfigs = [	
 			'suffix':'a',
-			'maxSize': outputs.aMaxSize, 
-			'minSize': outputs.aMinSize,
-			'desiredCapacity': outputs.aDesiredCapacity
+			'max_size': outputs.a_max_size, 
+			'min_size': outputs.a_min_size,
+			'desired_capacity': outputs.a_desired_capacity
 		]
 		
 		def Map newBAsgConfigs = [
 			'suffix':'b',
-			'maxSize': 0,
-			'minSize': 0,
-			'desiredCapacity': 0 
+			'max_size': 0,
+			'min_size': 0,
+			'desired_capacity': 0 
 		]
 		newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]	
 	}
@@ -274,28 +274,28 @@ public def destroyOldBlue(terragruntWorkingDir, terraInfo) {
 }
 
 public def destroy_green(terragruntWorkingDir, terraInfo) {
-	println 'Running deployGreen()'
+	println 'Running destroyGreen()'
 	(blue, green, outputs) = getBlueGreen(terragruntWorkingDir, terraInfo)
 	println "DESTROYING ${green}"
 	
-	outputs["blueWeightA"] = outputs.blueWeightA
-    outputs["blueWeightB"] = outputs.blueWeightB
-	outputs["greenWeightA"] = outputs.greenWeightA
-    outputs["greenWeightB"] = outputs.greenWeightB
+	outputs["blue_weight_a"] = outputs.blue_weight_a
+        outputs["blue_weight_b"] = outputs.blue_weight_b
+	outputs["green_weight_a"] = outputs.green_weight_a
+        outputs["green_weight_b"] = outputs.green_weight_b
 
 	if (green.compareTo('a').equals(0)) {
 		def Map newAAsgConfigs = [	
 			'suffix':'a',
-			'maxSize': 0, 
-			'minSize': 0,
-			'desiredCapacity': 0
+			'max_size': 0, 
+			'min_size': 0,
+			'desired_capacity': 0
 		]
 		
 		def Map newBAsgConfigs = [
 			'suffix':'b',
-			'maxSize': outputs.bMaxSize,
-			'minSize': outputs.bMinSize,
-			'desiredCapacity': outputs.bDesiredCapacity
+			'max_size': outputs.b_max_size,
+			'min_size': outputs.b_min_size,
+			'desired_capacity': outputs.b_desired_capacity
 		]
 		newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
 		tgArgs = tgArgsBuilder(outputs, newAsgConfigs)	
@@ -304,16 +304,16 @@ public def destroy_green(terragruntWorkingDir, terraInfo) {
 	if (green.compareTo('b').equals(0)) {
 		def Map newAAsgConfigs = [	
 			'suffix':'a',
-			'maxSize': outputs.aMaxSize,
-			'minSize': outputs.aMinSize,
-			'desiredCapacity': outputs.aDesiredCapacity
+			'max_size': outputs.a_max_size,
+			'min_size': outputs.a_min_size,
+			'desired_capacity': outputs.a_desired_capacity
 		]
 		
 		def Map newBAsgConfigs = [
 			'suffix':'b',
-			'maxSize': 0, 
-			'minSize': 0, 
-			'desiredCapacity': 0 
+			'max_size': 0, 
+			'min_size': 0, 
+			'desired_capacity': 0 
 		]	
 		newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]		
 	}

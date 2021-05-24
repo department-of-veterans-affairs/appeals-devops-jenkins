@@ -1,15 +1,50 @@
 #!/usr/bin/env groovy
 
+final NONPROD_ENVS =  ['uat', 'preprod']
+final PROD_ENVS =  ['prod']
+final CASEFLOW_APPS =  ['certification', 'efolder', 'monitor']
+final CASEFLOW_DB_APPS =  ['certification', 'efolder']
+final DEPLOY_JOBS = ['blueGreens', 'deploys']
+
 def call(Map stageParams) {
     buildResult = stageParams.buildResult
+    appName = stageParams.appName
+    environment = stageParams.environment
+    jobType = env.JOB_NAME.split('/')[0]
 
-    message = stageParams.message ? stageParams.message : """${buildResult}
-    Job: ${env.JOB_NAME}
-    Build Numer: ${env.BUILD_NUMBER}
-    ${currentBuild.getAbsoluteUrl()}""".stripMargin()
+    if (messageType == "START") {
+        message = """Start Jenkins pipelne job `${env.JOB_NAME}` for `${appName}` to environment `${environment}`.
+                  |```${stageParams.message}```
+        """
+        if (environment in PROD_ENVS
+           && appName in CASEFLOW_APPS
+           && jobType in DEPLOY_JOBS) {
+
+             message = "@here " + message
+        }
+    }
+    else if (messageType == "FINISH") {
+        message =  """Finished Jenkins pipeline job `${env.JOB_NAME}` for `${appName}` to environment `${environment}`.
+                        |${stageParams.amiHash != null ? 'Git hash: `stageParams.amiHash`' : ''}
+                        ```${stageParams.message}```""".stripMargin()
+        if (jobType in DEPLOY_JOBS) {
+            message = "Deployment Successful -- \n" + message
+    }
+    else if (messageType == "FAILURE") {
+        message = """@here Failed Jenkins pipeline for `${env.JOB_NAME}` on application `${appName ?: ''}` to environment `${environment}`!
+                        |Reason: `${stageParams.error}`
+                        |${stageParams.jobUrl}
+                        ```${message}```""".stripMargin()
+    }
+    else {
+        message = stageParams.message ? stageParams.message : """${buildResult}
+                  |Job: ${env.JOB_NAME}
+                  |Build Numer: ${env.BUILD_NUMBER}
+                  |${currentBuild.getAbsoluteUrl()}""".stripMargin()
+    }
 
     success_channel = stageParams.channel
-    failure_channel = stageParams.failure_channel ? stageParams.failure_channel : "appeals-devops"
+    failure_channel = stageParams.failure_channel ? stageParams.failure_channel : "appeals-devops-alerts"
 
     try{
         if ( buildResult == "SUCCESS" ) {

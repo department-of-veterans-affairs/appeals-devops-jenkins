@@ -11,6 +11,7 @@ def call(Map stageParams) {
     appName = stageParams.appName
     environment = stageParams.environment
     jobType = env.JOB_NAME.split('/')[0]
+    message = ''
 
     if (messageType == "START") {
         message = """Start Jenkins pipelne job `${env.JOB_NAME}` for `${appName}` to environment `${environment}`.
@@ -33,7 +34,7 @@ def call(Map stageParams) {
     else if (messageType == "FAILURE") {
         message = """@here Failed Jenkins pipeline for `${env.JOB_NAME}` on application `${appName ?: ''}` to environment `${environment}`!
                         |Reason: `${stageParams.error}`
-                        |${stageParams.jobUrl}
+                        |${currentBuild.getAbsoluteUrl()}console
                         ```${message}```""".stripMargin()
     }
     else {

@@ -10,6 +10,7 @@ def call(Map stageParams) {
     buildResult = stageParams.buildResult
     appName = stageParams.appName
     environment = stageParams.environment
+    messageType = stageParams.messageType
     jobType = env.JOB_NAME.split('/')[0]
     message = ''
 

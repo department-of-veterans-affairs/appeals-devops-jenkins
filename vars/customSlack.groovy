@@ -1,11 +1,9 @@
 #!/usr/bin/env groovy
+import static gov.va.appeals.devops.Environments.PROD_ENVS
+import static gov.va.appeals.devops.Caseflow.CASEFLOW_APPS
+import static gov.va.appeals.devops.Jenkins.DEPLOY_JOBS
 
 def call(Map stageParams) {
-    final NONPROD_ENVS =  ['uat', 'preprod']
-    final PROD_ENVS =  ['prod']
-    final CASEFLOW_APPS =  ['certification', 'efolder', 'monitor']
-    final CASEFLOW_DB_APPS =  ['certification', 'efolder']
-    final DEPLOY_JOBS = ['blueGreens', 'deploys']
 
     buildResult = stageParams.buildResult
     appName = stageParams.appName

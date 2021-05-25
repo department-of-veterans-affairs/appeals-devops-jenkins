@@ -31,7 +31,7 @@ def call(Map stageParams) {
                         |${amiHash}
                         ```${stageParams.message}```""".stripMargin()
         if (jobType in DEPLOY_JOBS) {
-            message = "Deployment Successful -- \n" + message
+            message = "*Deployment Successful*\n" + message
         }
     }
     else if (messageType == "FAILURE") {

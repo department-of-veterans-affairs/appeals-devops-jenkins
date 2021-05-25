@@ -30,6 +30,7 @@ def call(Map stageParams) {
                         ```${stageParams.message}```""".stripMargin()
         if (jobType in DEPLOY_JOBS) {
             message = "Deployment Successful -- \n" + message
+        }
     }
     else if (messageType == "FAILURE") {
         message = """@here Failed Jenkins pipeline for `${env.JOB_NAME}` on application `${appName ?: ''}` to environment `${environment}`!

@@ -1,12 +1,12 @@
 #!/usr/bin/env groovy
 
-final NONPROD_ENVS =  ['uat', 'preprod']
-final PROD_ENVS =  ['prod']
-final CASEFLOW_APPS =  ['certification', 'efolder', 'monitor']
-final CASEFLOW_DB_APPS =  ['certification', 'efolder']
-final DEPLOY_JOBS = ['blueGreens', 'deploys']
-
 def call(Map stageParams) {
+    final NONPROD_ENVS =  ['uat', 'preprod']
+    final PROD_ENVS =  ['prod']
+    final CASEFLOW_APPS =  ['certification', 'efolder', 'monitor']
+    final CASEFLOW_DB_APPS =  ['certification', 'efolder']
+    final DEPLOY_JOBS = ['blueGreens', 'deploys']
+
     buildResult = stageParams.buildResult
     appName = stageParams.appName
     environment = stageParams.environment

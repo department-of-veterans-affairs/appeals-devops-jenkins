@@ -16,7 +16,7 @@ def call(Map stageParams) {
 
     if (messageType == "START") {
         message = """Start Jenkins pipelne job `${env.JOB_NAME}` for `${appName}` to environment `${environment}`.
-                  |```${stageParams.message}```
+                  ```${stageParams.message}```
         """
         if (environment in PROD_ENVS
            && appName in CASEFLOW_APPS

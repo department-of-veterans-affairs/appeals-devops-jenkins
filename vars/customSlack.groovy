@@ -11,7 +11,7 @@ def call(Map stageParams) {
     messageType = stageParams.messageType
     jobType = env.JOB_NAME.split('/')[0]
     amiHash = stageParams.amiHash != null ? "Git hash: `${stageParams.amiHash}`" : ''
-    stageParamsMessage = stageParams.message != null ? "\n" + """```${stageParams.message}```"""
+    stageParamsMessage = stageParams.message != null ? "\n" + """```${stageParams.message}```""" : ''
     message = ''
 
     if (messageType == "START") {

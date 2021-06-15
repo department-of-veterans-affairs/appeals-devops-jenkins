@@ -79,7 +79,7 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
 	return [blue, green, outputs]
 }
 
-public def deployGreen(terragruntWorkingDir, asgDesiredValues, terraInfo) {
+public def deployGreen(terragruntWorkingDir, asgDesiredValues, terraInfo, extraArgs) {
 	println 'Running deployGreen()'
 	(blue, green, outputs) = getBlueGreen(terragruntWorkingDir, terraInfo)
 	println "DEPLOYING ${green}"
@@ -117,11 +117,11 @@ public def deployGreen(terragruntWorkingDir, asgDesiredValues, terraInfo) {
 		newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
 	}
 	
-	tgArgs = tgArgsBuilder(outputs, newAsgConfigs)
+	tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)
 	tgApply(terragruntWorkingDir, tgArgs, terraInfo)
 }
 
-public def tgArgsBuilder(outputs, newAsgConfigs) {
+public def tgArgsBuilder(outputs, newAsgConfigs, extraArgs) {
 	outputs.remove("asg_configs")
     outputs.remove("a_max_size")
     outputs.remove("a_min_size")
@@ -143,6 +143,9 @@ public def tgArgsBuilder(outputs, newAsgConfigs) {
 	}
 	//println asgConfigs
 	tgArgs = tgArgs + "-var=asg_configs=[${asgConfigs}]"
+	if (extraArgs) {
+    	tgArgs = tgArgs + " " + extraArgs
+    }
 	return tgArgs
 }
 

@@ -149,7 +149,7 @@ public def tgArgsBuilder(outputs, newAsgConfigs, extraArgs) {
 	return tgArgs
 }
 
-public def weightShift(terragruntWorkingDir, terraInfo) {
+public def weightShift(terragruntWorkingDir, terraInfo, extraArgs) {
 	println 'Running weightShift()'
 	(blue, green, outputs) = getBlueGreen(terragruntWorkingDir, terraInfo)
 	

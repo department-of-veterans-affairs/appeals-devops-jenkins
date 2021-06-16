@@ -15,7 +15,7 @@ import groovy.json.JsonBuilder
 
 public def tgApply(terragruntWorkingDir, tgArgs, terraInfo) {
 	println 'Running tgApply()'
-	
+	println "TERRA COMMAND = ${terraInfo.terraPath}/terragrunt/terragrunt${terraInfo.tgruntVersion} apply -auto-approve --terragrunt-working-dir ${terragruntWorkingDir} ${tgArgs} --terragrunt-tfpath ${terraInfo.terraPath}/terraform/terraform${terraInfo.tformVersion}"	
 	def applySout = new StringBuilder(), applySerr = new StringBuilder()
 	def procApply = "${terraInfo.terraPath}/terragrunt/terragrunt${terraInfo.tgruntVersion} apply -auto-approve --terragrunt-working-dir ${terragruntWorkingDir} ${tgArgs} --terragrunt-tfpath ${terraInfo.terraPath}/terraform/terraform${terraInfo.tformVersion}".execute() 
 	procApply.consumeProcessOutput(applySout, applySerr) 
@@ -79,7 +79,7 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
 	return [blue, green, outputs]
 }
 
-public def deployGreen(terragruntWorkingDir, asgDesiredValues, terraInfo) {
+public def deployGreen(terragruntWorkingDir, asgDesiredValues, terraInfo, extraArgs) {
 	println 'Running deployGreen()'
 	(blue, green, outputs) = getBlueGreen(terragruntWorkingDir, terraInfo)
 	println "DEPLOYING ${green}"
@@ -117,11 +117,11 @@ public def deployGreen(terragruntWorkingDir, asgDesiredValues, terraInfo) {
 		newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
 	}
 	
-	tgArgs = tgArgsBuilder(outputs, newAsgConfigs)
+	tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)
 	tgApply(terragruntWorkingDir, tgArgs, terraInfo)
 }
 
-public def tgArgsBuilder(outputs, newAsgConfigs) {
+public def tgArgsBuilder(outputs, newAsgConfigs, extraArgs) {
 	outputs.remove("asg_configs")
     outputs.remove("a_max_size")
     outputs.remove("a_min_size")
@@ -143,10 +143,13 @@ public def tgArgsBuilder(outputs, newAsgConfigs) {
 	}
 	//println asgConfigs
 	tgArgs = tgArgs + "-var=asg_configs=[${asgConfigs}]"
+	if (extraArgs) {
+    	tgArgs = tgArgs + " " + extraArgs
+    }
 	return tgArgs
 }
 
-public def weightShift(terragruntWorkingDir, terraInfo) {
+public def weightShift(terragruntWorkingDir, terraInfo, extraArgs) {
 	println 'Running weightShift()'
 	(blue, green, outputs) = getBlueGreen(terragruntWorkingDir, terraInfo)
 	
@@ -188,7 +191,7 @@ public def weightShift(terragruntWorkingDir, terraInfo) {
 		outputs["blue_weight_a"] = blueWeightA
 		outputs["blue_weight_b"] = blueWeightB
 		
-		tgArgs = tgArgsBuilder(outputs, newAsgConfigs)	
+		tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)	
 		tgApply(terragruntWorkingDir, tgArgs, terraInfo) 
 		sleep(10)// sleeps for 10s
 	}
@@ -216,11 +219,11 @@ public def customBlueWeights(terragruntWorkingDir, blueCustomWeightA, blueCustom
 	]
 	
 	newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
-	tgArgs = tgArgsBuilder(outputs, newAsgConfigs)	
+	tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)	
 	tgApply(terragruntWorkingDir, tgArgs, terraInfo) 
 }
 
-public def destroyOldBlue(terragruntWorkingDir, terraInfo) {
+public def destroyOldBlue(terragruntWorkingDir, terraInfo, extraArgs) {
 	println "Running destroyOldBlue()"
 	(blue, green, outputs) = getBlueGreen(terragruntWorkingDir, terraInfo)
 	if (blue.compareTo('a').equals(0)) {
@@ -269,7 +272,7 @@ public def destroyOldBlue(terragruntWorkingDir, terraInfo) {
 		newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]	
 	}
 	
-	tgArgs = tgArgsBuilder(outputs, newAsgConfigs)	
+	tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)	
 	tgApply(terragruntWorkingDir, tgArgs, terraInfo)
 }
 
@@ -298,7 +301,7 @@ public def destroy_green(terragruntWorkingDir, terraInfo) {
 			'desired_capacity': outputs.b_desired_capacity
 		]
 		newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
-		tgArgs = tgArgsBuilder(outputs, newAsgConfigs)	
+		tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)	
 	}
 	
 	if (green.compareTo('b').equals(0)) {
@@ -317,7 +320,7 @@ public def destroy_green(terragruntWorkingDir, terraInfo) {
 		]	
 		newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]		
 	}
-	tgArgs = tgArgsBuilder(outputs, newAsgConfigs)	
+	tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)	
 	tgApply(terragruntWorkingDir, tgArgs, terraInfo)
 }
 

@@ -11,11 +11,11 @@ def call(Map stageParams) {
     messageType = stageParams.messageType
     jobType = env.JOB_NAME.split('/')[0]
     amiHash = stageParams.amiHash != null ? "Git hash: `${stageParams.amiHash}`" : ''
-    stageParamsMessage = stageParams.message != null ? "\n" + """```${stageParams.message}```""" : ''
+    stageParamsMessage = stageParams.message != '' ? "\n" + """```${stageParams.message}```""" : ''
     message = ''
 
     if (messageType == "START") {
-        message = """Start Jenkins pipeline job `${env.JOB_NAME}` for `${appName}` to environment `${environment}`. `${stageParamsMessage}`"""
+        message = """Start Jenkins pipeline job `${env.JOB_NAME}` for `${appName}` to environment `${environment}`. ${stageParamsMessage}"""
         if (environment in PROD_ENVS
            && appName in CASEFLOW_APPS
            && jobType in DEPLOY_JOBS) {
@@ -25,7 +25,7 @@ def call(Map stageParams) {
     }
     else if (messageType == "FINISH") {
         message =  """Finished Jenkins pipeline job `${env.JOB_NAME}` for `${appName}` to environment `${environment}`.
-                        |${amiHash} `${stageParamsMessage}`""".stripMargin()
+                        |${amiHash} ${stageParamsMessage}""".stripMargin()
         if (jobType in DEPLOY_JOBS) {
             message = "*Deployment Successful*\n" + message
         }
@@ -33,7 +33,7 @@ def call(Map stageParams) {
     else if (messageType == "FAILURE") {
         message = """@here Failed Jenkins pipeline for `${env.JOB_NAME}` on application `${appName ?: ''}` to environment `${environment}`!
                         |Reason: `${stageParams.error}`
-                        |${currentBuild.getAbsoluteUrl()}console `${stageParamsMessage}`""".stripMargin()
+                        |${currentBuild.getAbsoluteUrl()}console ${stageParamsMessage}""".stripMargin()
     }
     else {
         message = stageParamsMessage ? stageParamsMessage : """${buildResult}

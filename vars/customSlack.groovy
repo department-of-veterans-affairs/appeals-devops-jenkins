@@ -11,7 +11,8 @@ def call(Map stageParams) {
     messageType = stageParams.messageType
     jobType = env.JOB_NAME.split('/')[0]
     amiHash = stageParams.amiHash != null ? "Git hash: `${stageParams.amiHash}`" : ''
-    stageParamsMessage = stageParams.message != '' ? "\n" + """```${stageParams.message}```""" : ''
+    // stageParams.message?.trim() return false for null and empty string
+    stageParamsMessage = stageParams.message?.trim() ? "\n" + """```${stageParams.message}```""" : ''
     message = ''
 
     if (messageType == "START") {
@@ -36,7 +37,7 @@ def call(Map stageParams) {
                         |${currentBuild.getAbsoluteUrl()}console ${stageParamsMessage}""".stripMargin()
     }
     else {
-        message = stageParamsMessage ? stageParamsMessage : """${buildResult}
+        message = stageParams.message ? stageParams.message : """${buildResult}
                   |Job: ${env.JOB_NAME}
                   |Build Numer: ${env.BUILD_NUMBER}
                   |${currentBuild.getAbsoluteUrl()}""".stripMargin()

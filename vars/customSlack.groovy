@@ -36,7 +36,7 @@ def call(Map stageParams) {
                         |${currentBuild.getAbsoluteUrl()}console ${stageParamsMessage}""".stripMargin()
     }
     else {
-        message = stageParamsMessage ? stageParamsMessage : """${buildResult}
+        message = stageParams.message ? stageParams.message : """${buildResult}
                   |Job: ${env.JOB_NAME}
                   |Build Numer: ${env.BUILD_NUMBER}
                   |${currentBuild.getAbsoluteUrl()}""".stripMargin()

@@ -26,13 +26,10 @@ public def tgApply(terragruntWorkingDir, tgArgs, terraInfo) {
 
 public def getBlueGreen(terragruntWorkingDir, terraInfo) {
   println "Running getBlueGreen()"
-  // terraform_version = sh(returnStdout: true, script: "terraform -v")
-  // echo terraform_version
-  // terragrunt_version = sh(returnStdout: true, script: "terragrunt -v")
-  // echo terragrunt_version
-  sh """
-    echo "Testing 1...2...3"
-  """
+  terraform_version = sh(returnStdout: true, script: "terraform -v")
+  echo terraform_version
+  terragrunt_version = sh(returnStdout: true, script: "terragrunt -v")
+  echo terragrunt_version
   // Rewrite this
   /*
   def jsonSlurper = new JsonSlurper()

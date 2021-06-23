@@ -13,25 +13,16 @@ import groovy.json.JsonBuilder
 
 */
 
-public def tgApply(terragruntWorkingDir, tgArgs, terraInfo) {
+public def tgApply(terragruntWorkingDir, tgArgs) {
   println 'Running tgApply()'
-  println "TERRA COMMAND = ${terraInfo.terraPath}/terragrunt/terragrunt${terraInfo.tgruntVersion} apply -auto-approve --terragrunt-working-dir ${terragruntWorkingDir} ${tgArgs} --terragrunt-tfpath ${terraInfo.terraPath}/terraform/terraform${terraInfo.tformVersion}" 
-  def applySout = new StringBuilder(), applySerr = new StringBuilder()
-  def procApply = "${terraInfo.terraPath}/terragrunt/terragrunt${terraInfo.tgruntVersion} apply -auto-approve --terragrunt-working-dir ${terragruntWorkingDir} ${tgArgs} --terragrunt-tfpath ${terraInfo.terraPath}/terraform/terraform${terraInfo.tformVersion}".execute() 
-  procApply.consumeProcessOutput(applySout, applySerr) 
-  procApply.waitForOrKill(9000000)
-  println "PROC_APPLY SERR = ${applySerr}" // This is info. It's all the terragrunt vomit `running command: terraform init [...]` 
-  println "PROC_APPLY SOUT = ${applySout}"
+  timeout(time: 15, unit: 'MINUTES') {
+     sh "terragrunt apply -auto-approve --terragrunt-working-dir ${terragruntWorkingDir} ${tgArgs}"
+  }
+
 }
 
-public def getBlueGreen(terragruntWorkingDir, terraInfo) {
+public def getBlueGreen(terragruntWorkingDir) {
   println "Running getBlueGreen()"
-  sh "which terraform"
-  terraform_version = sh(returnStdout: true, script: "terraform -v")
-  echo terraform_version
-  sh "which terragrunt"
-  terragrunt_version = sh(returnStdout: true, script: "terragrunt -v")
-  echo terragrunt_version
   timeout(time: 5, unit: 'MINUTES') {
     tgInitStdout = sh(returnStdout: true, script: "set +x\n terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
   }
@@ -40,21 +31,8 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
     tgOutputStdout = sh(returnStdout: true, script: "set +x\n terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
   }
   echo tgOutputStdout
-  // Rewrite this
-  /*
-  def initSout = new StringBuilder(), initSerr = new StringBuilder()
-  def procInit =  "${terraInfo.terraPath}/terragrunt/terragrunt${terraInfo.tgruntVersion} init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir} --terragrunt-tfpath ${terraInfo.terraPath}/terraform/terraform${terraInfo.tformVersion}".execute()
-  procInit.consumeProcessOutput(initSout, initSerr) 
-  procInit.waitForOrKill(9000000)
 
-  def sout = new StringBuilder(), serr = new StringBuilder()
-  def proc = "${terraInfo.terraPath}/terragrunt/terragrunt${terraInfo.tgruntVersion} output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir} --terragrunt-tfpath ${terraInfo.terraPath}/terraform/terraform${terraInfo.tformVersion}".execute() 
-  proc.consumeProcessOutput(sout, serr)
-  proc.waitForOrKill(9000000)
-  */
-  // Finish Rewrite
 
-  // Keep this
   def jsonSlurper = new JsonSlurper()
   def tgOutput = jsonSlurper.parseText(tgOutputStdout)
   def Map outputs = [
@@ -98,9 +76,9 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
   return [blue, green, outputs]
 }
 
-public def deployGreen(terragruntWorkingDir, asgDesiredValues, terraInfo, extraArgs) {
+public def deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {
   println 'Running deployGreen()'
-  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir, terraInfo)
+  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
   println "DEPLOYING ${green}"
   if (green.compareTo('a').equals(0)) {
     def Map newAAsgConfigs = [
@@ -137,7 +115,7 @@ public def deployGreen(terragruntWorkingDir, asgDesiredValues, terraInfo, extraA
   }
 
   tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)
-  tgApply(terragruntWorkingDir, tgArgs, terraInfo)
+  tgApply(terragruntWorkingDir, tgArgs)
 }
 
 public def tgArgsBuilder(outputs, newAsgConfigs, extraArgs) {
@@ -168,9 +146,9 @@ public def tgArgsBuilder(outputs, newAsgConfigs, extraArgs) {
   return tgArgs
 }
 
-public def weightShift(terragruntWorkingDir, terraInfo, extraArgs) {
+public def weightShift(terragruntWorkingDir, extraArgs) {
   println 'Running weightShift()'
-  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir, terraInfo)
+  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
 
   Integer blueWeightA = outputs.blue_weight_a
   Integer blueWeightB = outputs.blue_weight_b
@@ -211,14 +189,14 @@ public def weightShift(terragruntWorkingDir, terraInfo, extraArgs) {
     outputs["blue_weight_b"] = blueWeightB
 
     tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs) 
-    tgApply(terragruntWorkingDir, tgArgs, terraInfo) 
+    tgApply(terragruntWorkingDir, tgArgs)
     sleep(10)// sleeps for 10s
   }
 }
 
-public def customBlueWeights(terragruntWorkingDir, blueCustomWeightA, blueCustomWeightB, terraInfo) {
+public def customBlueWeights(terragruntWorkingDir, blueCustomWeightA, blueCustomWeightB) {
   println 'Running customBlueWeights()'
-  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir, terraInfo)
+  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
 
   outputs["blue_weight_a"] = blueCustomWeightA
   outputs["blue_weight_b"] = blueCustomWeightB
@@ -239,12 +217,12 @@ public def customBlueWeights(terragruntWorkingDir, blueCustomWeightA, blueCustom
 
   newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
   tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs) 
-  tgApply(terragruntWorkingDir, tgArgs, terraInfo) 
+  tgApply(terragruntWorkingDir, tgArgs)
 }
 
-public def destroyOldBlue(terragruntWorkingDir, terraInfo, extraArgs) {
+public def destroyOldBlue(terragruntWorkingDir, extraArgs) {
   println "Running destroyOldBlue()"
-  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir, terraInfo)
+  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
   if (blue.compareTo('a').equals(0)) {
     old_blue = 'b'
   }
@@ -292,12 +270,12 @@ public def destroyOldBlue(terragruntWorkingDir, terraInfo, extraArgs) {
   }
 
   tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs) 
-  tgApply(terragruntWorkingDir, tgArgs, terraInfo)
+  tgApply(terragruntWorkingDir, tgArgs)
 }
 
-public def destroy_green(terragruntWorkingDir, terraInfo) {
+public def destroy_green(terragruntWorkingDir) {
   println 'Running destroyGreen()'
-  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir, terraInfo)
+  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
   println "DESTROYING ${green}"
 
   outputs["blue_weight_a"] = outputs.blue_weight_a
@@ -340,6 +318,6 @@ public def destroy_green(terragruntWorkingDir, terraInfo) {
     newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]    
   }
   tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs) 
-  tgApply(terragruntWorkingDir, tgArgs, terraInfo)
+  tgApply(terragruntWorkingDir, tgArgs)
 }
 

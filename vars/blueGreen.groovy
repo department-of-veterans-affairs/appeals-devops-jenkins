@@ -140,7 +140,7 @@ public def tgArgsBuilder(outputs, newAsgConfigs, extraArgs) {
     builder(item)
     asgConfigs = asgConfigs + builder.toString() + ","
   }
-
+  // The single quotes are required or bash will try to expand asg_configs
   tgArgs = tgArgs + "'-var=asg_configs=[${asgConfigs}]'"
   if (extraArgs) {
       tgArgs = tgArgs + " " + extraArgs

@@ -27,10 +27,17 @@ public def tgApply(terragruntWorkingDir, tgArgs, terraInfo) {
 public def getBlueGreen(terragruntWorkingDir, terraInfo) {
   println "Running getBlueGreen()"
   node {
-    terraform_version = sh(returnStdout: true, script: "terraform -v")
-    echo terraform_version
-    terragrunt_version = sh(returnStdout: true, script: "terragrunt -v")
-    echo terragrunt_version
+    // terraform_version = sh(returnStdout: true, script: "terraform -v")
+    // echo terraform_version
+    // terragrunt_version = sh(returnStdout: true, script: "terragrunt -v")
+    // echo terragrunt_version
+    sh """
+       pwd terraform
+       pwd terragrunt
+       terraform -help
+       terraform -v
+       terragrunt -v
+   """
   }
   // Rewrite this
   /*

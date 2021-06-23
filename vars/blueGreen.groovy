@@ -32,6 +32,14 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
   sh "which terragrunt"
   terragrunt_version = sh(returnStdout: true, script: "terragrunt -v")
   echo terragrunt_version
+  timeout(time: 5, unit: 'MINUTES') {
+    tgInitStdout = sh(returnStdout: true, script: "terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
+  }
+  echo tgInitStdout
+  timeout(time: 5, unit: 'MINUTES') {
+    tgOutputStdout = sh(returnStdout: true, script: "terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
+  }
+  echo tgOutputStdout
   // Rewrite this
   /*
   def jsonSlurper = new JsonSlurper()

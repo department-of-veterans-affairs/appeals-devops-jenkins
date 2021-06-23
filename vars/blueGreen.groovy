@@ -33,11 +33,11 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
   terragrunt_version = sh(returnStdout: true, script: "terragrunt -v")
   echo terragrunt_version
   timeout(time: 5, unit: 'MINUTES') {
-    tgInitStdout = sh(returnStdout: true, script: "terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
+    tgInitStdout = sh(returnStdout: true, script: "set +x\n terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
   }
   echo tgInitStdout
   timeout(time: 5, unit: 'MINUTES') {
-    tgOutputStdout = sh(returnStdout: true, script: "terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
+    tgOutputStdout = sh(returnStdout: true, script: "set +x\n terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
   }
   echo tgOutputStdout
   // Rewrite this
@@ -52,12 +52,11 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
   def proc = "${terraInfo.terraPath}/terragrunt/terragrunt${terraInfo.tgruntVersion} output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir} --terragrunt-tfpath ${terraInfo.terraPath}/terraform/terraform${terraInfo.tformVersion}".execute() 
   proc.consumeProcessOutput(sout, serr)
   proc.waitForOrKill(9000000)
-  def object = jsonSlurper.parseText(sout.toString()) 
   */
   // Finish Rewrite
 
-  // Keep this but comment out now to prevent errors
-  /*
+  // Keep this
+  def object = jsonSlurper.parseText(tgOutputStdout)
   def Map outputs = [
   'blue_weight_a':object.blue_weight_a.value, 
   'blue_weight_b':object.blue_weight_b.value,
@@ -97,7 +96,6 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
   println "BLUE = ${blue}"
   println "GREEN = ${green}"
   return [blue, green, outputs]
-  */
 }
 
 public def deployGreen(terragruntWorkingDir, asgDesiredValues, terraInfo, extraArgs) {

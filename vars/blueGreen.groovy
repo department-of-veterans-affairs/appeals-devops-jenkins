@@ -42,7 +42,6 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
   echo tgOutputStdout
   // Rewrite this
   /*
-  def jsonSlurper = new JsonSlurper()
   def initSout = new StringBuilder(), initSerr = new StringBuilder()
   def procInit =  "${terraInfo.terraPath}/terragrunt/terragrunt${terraInfo.tgruntVersion} init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir} --terragrunt-tfpath ${terraInfo.terraPath}/terraform/terraform${terraInfo.tformVersion}".execute()
   procInit.consumeProcessOutput(initSout, initSerr) 
@@ -56,20 +55,21 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
   // Finish Rewrite
 
   // Keep this
-  def object = jsonSlurper.parseText(tgOutputStdout)
+  def jsonSlurper = new JsonSlurper()
+  def tgOutput = jsonSlurper.parseText(tgOutputStdout)
   def Map outputs = [
-  'blue_weight_a':object.blue_weight_a.value, 
-  'blue_weight_b':object.blue_weight_b.value,
-  'green_weight_a':object.green_weight_a.value,
-  'green_weight_b':object.green_weight_b.value,
+  'blue_weight_a':tgOutput.blue_weight_a.value, 
+  'blue_weight_b':tgOutput.blue_weight_b.value,
+  'green_weight_a':tgOutput.green_weight_a.value,
+  'green_weight_b':tgOutput.green_weight_b.value,
 
-  'a_max_size':object.auto_scaling_groups.value[0].max_size,
-  'a_min_size':object.auto_scaling_groups.value[0].min_size,
-  'a_desired_capacity':object.auto_scaling_groups.value[0].desired_capacity,
-  'b_max_size':object.auto_scaling_groups.value[1].max_size,
-  'b_min_size':object.auto_scaling_groups.value[1].min_size,
-  'b_desired_capacity':object.auto_scaling_groups.value[1].desired_capacity,
-  'asg_configs': object.asg_configs.value,
+  'a_max_size':tgOutput.auto_scaling_groups.value[0].max_size,
+  'a_min_size':tgOutput.auto_scaling_groups.value[0].min_size,
+  'a_desired_capacity':tgOutput.auto_scaling_groups.value[0].desired_capacity,
+  'b_max_size':tgOutput.auto_scaling_groups.value[1].max_size,
+  'b_min_size':tgOutput.auto_scaling_groups.value[1].min_size,
+  'b_desired_capacity':tgOutput.auto_scaling_groups.value[1].desired_capacity,
+  'asg_configs': tgOutput.asg_configs.value,
   ]
   if (outputs.blue_weight_a >= 50) {
     blue = 'a'

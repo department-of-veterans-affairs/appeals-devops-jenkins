@@ -32,11 +32,7 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
     // terragrunt_version = sh(returnStdout: true, script: "terragrunt -v")
     // echo terragrunt_version
     sh """
-       pwd terraform
-       pwd terragrunt
-       terraform -help
-       terraform -v
-       terragrunt -v
+      echo "Testing 1...2...3"
    """
   }
   // Rewrite this

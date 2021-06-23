@@ -115,22 +115,24 @@ public def deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {
   }
 
   tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)
+  echo tgArgs
   tgApply(terragruntWorkingDir, tgArgs)
 }
 
 public def tgArgsBuilder(outputs, newAsgConfigs, extraArgs) {
   outputs.remove("asg_configs")
-    outputs.remove("a_max_size")
-    outputs.remove("a_min_size")
-    outputs.remove("a_desired_capacity")
-    outputs.remove("b_max_size")
-    outputs.remove("b_min_size")
-    outputs.remove("b_desired_capacity")
-
+  outputs.remove("a_max_size")
+  outputs.remove("a_min_size")
+  outputs.remove("a_desired_capacity")
+  outputs.remove("b_max_size")
+  outputs.remove("b_min_size")
+  outputs.remove("b_desired_capacity")
+  echo outputs
   def String tgArgs = ""
   for (item in outputs) {
     tgArgs = tgArgs + "-var=${item.key}=${item.value} "
   }
+  echo tgArgs
   //println tgArgs
   def String asgConfigs = ""
   for (item in newAsgConfigs) {
@@ -138,8 +140,10 @@ public def tgArgsBuilder(outputs, newAsgConfigs, extraArgs) {
     builder(item)
     asgConfigs = asgConfigs + builder.toString() + ","
   }
+  echo asgConfigs
   //println asgConfigs
   tgArgs = tgArgs + "-var=asg_configs=[${asgConfigs}]"
+  echo tgArgs
   if (extraArgs) {
       tgArgs = tgArgs + " " + extraArgs
     }

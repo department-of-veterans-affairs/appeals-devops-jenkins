@@ -24,9 +24,16 @@ public def tgApply(terragruntWorkingDir, tgArgs, terraInfo) {
   println "PROC_APPLY SOUT = ${applySout}"
 }
 
-public def getBlueGreen(terragruntWorkingDir, terraInfo) {  
+public def getBlueGreen(terragruntWorkingDir, terraInfo) {
   println "Running getBlueGreen()"
-
+  node {
+    terraform_version = sh(returnStdout: true, script: "terraform -v")
+    echo terraform_version
+    terragrunt_version = sh(returnStdout: true, script: "terragrunt -v")
+    echo terragrunt_version
+  }
+  // Rewrite this
+  /*
   def jsonSlurper = new JsonSlurper()
   def initSout = new StringBuilder(), initSerr = new StringBuilder()
   def procInit =  "${terraInfo.terraPath}/terragrunt/terragrunt${terraInfo.tgruntVersion} init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir} --terragrunt-tfpath ${terraInfo.terraPath}/terraform/terraform${terraInfo.tformVersion}".execute()
@@ -35,9 +42,14 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
 
   def sout = new StringBuilder(), serr = new StringBuilder()
   def proc = "${terraInfo.terraPath}/terragrunt/terragrunt${terraInfo.tgruntVersion} output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir} --terragrunt-tfpath ${terraInfo.terraPath}/terraform/terraform${terraInfo.tformVersion}".execute() 
-  proc.consumeProcessOutput(sout, serr) 
+  proc.consumeProcessOutput(sout, serr)
   proc.waitForOrKill(9000000)
   def object = jsonSlurper.parseText(sout.toString()) 
+  */
+  // Finish Rewrite
+
+  // Keep this but comment out now to prevent errors
+  /*
   def Map outputs = [
   'blue_weight_a':object.blue_weight_a.value, 
   'blue_weight_b':object.blue_weight_b.value,
@@ -77,6 +89,7 @@ public def getBlueGreen(terragruntWorkingDir, terraInfo) {
   println "BLUE = ${blue}"
   println "GREEN = ${green}"
   return [blue, green, outputs]
+  */
 }
 
 public def deployGreen(terragruntWorkingDir, asgDesiredValues, terraInfo, extraArgs) {

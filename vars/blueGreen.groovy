@@ -15,6 +15,8 @@ import groovy.json.JsonBuilder
 
 public def tgApply(terragruntWorkingDir, tgArgs) {
   println 'Running tgApply()'
+  println tgArgs
+  println "${tgArgs}"
   timeout(time: 15, unit: 'MINUTES') {
      sh "terragrunt apply -auto-approve --terragrunt-working-dir ${terragruntWorkingDir} ${tgArgs}"
   }

@@ -26,8 +26,10 @@ public def tgApply(terragruntWorkingDir, tgArgs, terraInfo) {
 
 public def getBlueGreen(terragruntWorkingDir, terraInfo) {
   println "Running getBlueGreen()"
+  sh "which terraform"
   terraform_version = sh(returnStdout: true, script: "terraform -v")
   echo terraform_version
+  sh "which terragrunt"
   terragrunt_version = sh(returnStdout: true, script: "terragrunt -v")
   echo terragrunt_version
   // Rewrite this

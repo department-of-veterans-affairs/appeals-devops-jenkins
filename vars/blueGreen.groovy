@@ -17,7 +17,6 @@ public def tgApply(terragruntWorkingDir, tgArgs) {
   println 'Running tgApply()'
   TERRAGRUNT_COMMAND = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragruntWorkingDir} ${tgArgs}"
   println TERRAGRUNT_COMMAND
-  println "${TERRAGRUNT_COMMAND}"
   timeout(time: 15, unit: 'MINUTES') {
      sh TERRAGRUNT_COMMAND
   }
@@ -118,7 +117,6 @@ public def deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {
   }
 
   tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)
-  println(tgArgs)
   tgApply(terragruntWorkingDir, tgArgs)
 }
 
@@ -130,23 +128,19 @@ public def tgArgsBuilder(outputs, newAsgConfigs, extraArgs) {
   outputs.remove("b_max_size")
   outputs.remove("b_min_size")
   outputs.remove("b_desired_capacity")
-  println(outputs)
   def String tgArgs = ""
   for (item in outputs) {
     tgArgs = tgArgs + "-var=${item.key}=${item.value} "
   }
-  println(tgArgs)
-  //println tgArgs
+
   def String asgConfigs = ""
   for (item in newAsgConfigs) {
     def builder = new JsonBuilder()
     builder(item)
     asgConfigs = asgConfigs + builder.toString() + ","
   }
-  println(asgConfigs)
-  //println asgConfigs
+
   tgArgs = tgArgs + "-var=asg_configs=[${asgConfigs}]"
-  println(tgArgs)
   if (extraArgs) {
       tgArgs = tgArgs + " " + extraArgs
     }

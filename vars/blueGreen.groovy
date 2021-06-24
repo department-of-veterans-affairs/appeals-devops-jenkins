@@ -15,7 +15,6 @@ import groovy.json.JsonBuilder
 
 public def tgApply(terragruntWorkingDir, tgArgs) {
   println 'Running tgApply()'
-  // Bash will expand this very strangely unless you put a single quote around tgArgs
   TERRAGRUNT_COMMAND = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragruntWorkingDir} ${tgArgs}"
   println TERRAGRUNT_COMMAND
   timeout(time: 15, unit: 'MINUTES') {

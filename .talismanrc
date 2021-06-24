@@ -1,5 +1,5 @@
 fileignoreconfig:
 - filename: vars/notificationsNewRelic.groovy
-  checksum: f9e50de32786f95322de5ff4093677af36576c333db64d0765cde3b427b6badc
-- filename: vars/notificationsNewRelic.groovy
   checksum: 3972cd56be2102ec6a42abe6fb2cc5a6ae229196209e1133c5dd829f8fcf57d6
+- filename: vars/blueGreen.groovy
+  checksum: 7b021b86f241a851d7799edb40847daaface28bb6c5ffa5add62a7321c7e7cc1

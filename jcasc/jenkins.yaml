@@ -131,6 +131,8 @@ unclassified:
     teamDomain: "dsva"
     baseUrl: ""
     tokenCredentialId: "SLACK_TOKEN"
+    botUser: true
+    room: "#appeals-deployment"
   globalLibraries:
     libraries:
       - name: "appeals-devops-jenkins"

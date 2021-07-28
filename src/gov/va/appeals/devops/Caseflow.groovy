@@ -11,8 +11,3 @@ static final DEPLOY_TYPE = [
                            sentry: "blueGreens"
                            ]
 }
-static final GEM_VERSIONS = [
-                           certification: '3.1.6',
-                           efolder: '2.7.8',
-                           monitor: '2.7.8'
-                            ]

@@ -182,7 +182,7 @@ public def weightShift(terragruntWorkingDir, weightShift, extraArgs) {
       blueWeightB = blueWeightB - weightShift
     } 
 
-    if (blueWeightA == 110 || blueWeightB == 110) {
+    if (blueWeightA == (100 +  weightShift) || blueWeightB == (100 + weightShift)) {
           break 
         }
 

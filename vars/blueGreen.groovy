@@ -191,7 +191,6 @@ public def weightShift(terragruntWorkingDir, weightShift, extraArgs) {
 
     tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs) 
     tgApply(terragruntWorkingDir, tgArgs)
-    sleep(10)// sleeps for 10s
   }
 }
 

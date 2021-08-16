@@ -147,7 +147,7 @@ public def tgArgsBuilder(outputs, newAsgConfigs, extraArgs) {
   return tgArgs
 }
 
-public def weightShift(terragruntWorkingDir, extraArgs) {
+public def weightShift(terragruntWorkingDir, weightShift, extraArgs) {
   println 'Running weightShift()'
   (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
 
@@ -173,16 +173,16 @@ public def weightShift(terragruntWorkingDir, extraArgs) {
   while (blueWeightA != 100 || blueWeightB != 100) {
     // blue weight shift starts here
     if (blue.compareTo('a').equals(0)) {
-      blueWeightA = blueWeightA-10
-      blueWeightB = blueWeightB+10
+      blueWeightA = blueWeightA - weightShift
+      blueWeightB = blueWeightB + weightShift
     } 
 
     else if (blue.compareTo('b').equals(0)) {
-      blueWeightA = blueWeightA+10
-      blueWeightB = blueWeightB-10
+      blueWeightA = blueWeightA + weightShift
+      blueWeightB = blueWeightB - weightShift
     } 
 
-    if (blueWeightA == 110 || blueWeightB == 110) {
+    if (blueWeightA == (100 +  weightShift) || blueWeightB == (100 + weightShift)) {
           break 
         }
 
@@ -191,7 +191,6 @@ public def weightShift(terragruntWorkingDir, extraArgs) {
 
     tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs) 
     tgApply(terragruntWorkingDir, tgArgs)
-    sleep(10)// sleeps for 10s
   }
 }
 

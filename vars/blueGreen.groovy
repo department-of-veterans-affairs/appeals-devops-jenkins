@@ -25,7 +25,7 @@ public def tgApply(terragruntWorkingDir, tgArgs) {
 
 public def sumAsgs(autoScalingGroups, target_group_name) {
   def Map indexLookup = [
-    a: 0
+    a: 0,
     b: 1
   ]
   maxSize = 0

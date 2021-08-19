@@ -42,7 +42,7 @@ public def sumAsgs(autoScalingGroups, targetGroupName) {
     println(autoScalingGroups[it].max_size)
     maxSize += autoScalingGroups[it].max_size as Integer
     minSize += autoScalingGroups[it].min_size as Integer
-    desiredCapacity += autoScalingGroups[it].desiredCapacity as Integer
+    desiredCapacity += autoScalingGroups[it].desired_capacity as Integer
   }
   return [ maxSize, minSize, desiredCapacity ]
 }

@@ -40,9 +40,9 @@ public def sumAsgs(autoScalingGroups, targetGroupName) {
   startIndex.step endIndex, stepAmount, {
     println(autoScalingGroups[it])
     println(autoScalingGroups[it].max_size)
-    maxSize += autoScalingGroups[it].max_size.toInteger()
-    minSize += autoScalingGroups[it].min_size.toInteger()
-    desiredCapacity += autoScalingGroups[it].desiredCapacity.toInteger()
+    maxSize += autoScalingGroups[it].max_size as Integer
+    minSize += autoScalingGroups[it].min_size as Integer
+    desiredCapacity += autoScalingGroups[it].desiredCapacity as Integer
   }
   return [ maxSize, minSize, desiredCapacity ]
 }

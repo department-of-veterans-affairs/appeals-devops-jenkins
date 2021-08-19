@@ -37,9 +37,9 @@ public def sumAsgs(autoScalingGroups, target_group_name) {
   def stepAmount = indexLookup.size() 
   // Returns a subset of either the 'a' or the 'b' asgs
   startIndex.step endIndex, stepAmount, {
-    maxSize += autoScalingGroups[it].max_size
-    minSize += autoScalingGroups[it].min_size
-    desiredCapacity += autoScalingGroups[it].desiredCapacity
+    maxSize += autoScalingGroups[it].max_size.toInteger()
+    minSize += autoScalingGroups[it].min_size.toInteger()
+    desiredCapacity += autoScalingGroups[it].desiredCapacity.toInteger()
   }
   return [ maxSize, minSize, desiredCapacity ]
 }

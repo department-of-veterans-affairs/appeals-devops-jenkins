@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-import groovy.json.JsonSlurper
+// import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
 
 /**
@@ -58,8 +58,9 @@ public def getBlueGreen(terragruntWorkingDir) {
   echo tgOutputStdout
 
 
-  def jsonSlurper = new JsonSlurper()
-  def tgOutput = jsonSlurper.parseText(tgOutputStdout)
+  // def jsonSlurper = new JsonSlurper()
+  // def tgOutput = jsonSlurper.parseText(tgOutputStdout)
+  def tgOutput = readJSON text: tgOutputStdout
 
   println(tgOutput)
   println(tgOutput.auto_scaling_groups.value)

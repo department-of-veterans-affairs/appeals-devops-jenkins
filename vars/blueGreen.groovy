@@ -28,7 +28,6 @@ public def sumAsgs(autoScalingGroups, targetGroupName) {
     a: 0,
     b: 1
   ]
-  println(autoScalingGroups)
   def maxSize = 0
   def minSize = 0
   def desiredCapacity = 0
@@ -38,11 +37,9 @@ public def sumAsgs(autoScalingGroups, targetGroupName) {
   def stepAmount = indexLookup.size() 
   // Returns a subset of either the 'a' or the 'b' asgs
   startIndex.step endIndex, stepAmount, {
-    println(autoScalingGroups[it])
-    println(autoScalingGroups[it].max_size)
-    maxSize += autoScalingGroups[it].max_size as Integer
-    minSize += autoScalingGroups[it].min_size as Integer
-    desiredCapacity += autoScalingGroups[it].desired_capacity as Integer
+    maxSize += autoScalingGroups[it].max_size.toInteger()
+    minSize += autoScalingGroups[it].min_size.toInteger()
+    desiredCapacity += autoScalingGroups[it].desired_capacity.toInteger()
   }
   return [ maxSize, minSize, desiredCapacity ]
 }
@@ -61,12 +58,9 @@ public def getBlueGreen(terragruntWorkingDir) {
 
   def jsonSlurper = new JsonSlurper()
   def tgOutput = jsonSlurper.parseText(tgOutputStdout)
-  def autoScalingGroups = tgOutput.auto_scaling_groups.value
 
-  println(tgOutput)
-  println(autoScalingGroups)
-  def (aMaxSize, aMinSize, aDesiredCapacity) = sumAsgs(autoScalingGroups, 'a')
-  def (bMaxSize, bMinSize, bDesiredCapacity) = sumAsgs(autoScalingGroups, 'b')
+  def (aMaxSize, aMinSize, aDesiredCapacity) = sumAsgs(tgOutput.auto_scaling_groups.value, 'a')
+  def (bMaxSize, bMinSize, bDesiredCapacity) = sumAsgs(tgOutput.auto_scaling_groups.value, 'b')
 
   def Map outputs = [
   'blue_weight_a':tgOutput.blue_weight_a.value, 

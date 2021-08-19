@@ -39,6 +39,7 @@ public def sumAsgs(autoScalingGroups, targetGroupName) {
   // Returns a subset of either the 'a' or the 'b' asgs
   startIndex.step endIndex, stepAmount, {
     println(autoScalingGroups[it])
+    println(autoScalingGroups[it].max_size)
     maxSize += autoScalingGroups[it].max_size.toInteger()
     minSize += autoScalingGroups[it].min_size.toInteger()
     desiredCapacity += autoScalingGroups[it].desiredCapacity.toInteger()

@@ -23,6 +23,24 @@ public def tgApply(terragruntWorkingDir, tgArgs) {
 
 }
 
+public def sumAsgs(autoScalingGroups, target_group_name) {
+  def Map indexLookup = [
+    a: 0
+    b: 1
+  ]
+  maxSize = 0
+  minSize = 0
+  desiredCapacity = 0
+
+  // Returns a subset of either the 'a' or the 'b' asgs
+  for(asg in autoScalingGroups[indexLookup[target_group_name]::size(indexLookup)]) {
+    maxSize += asg.max_size
+    minSize += asg.min_size
+    desiredCapacity += asg.desiredCapacity
+  }
+  return maxSize, minSize, desiredCapacity
+}
+
 public def getBlueGreen(terragruntWorkingDir) {
   println "Running getBlueGreen()"
   timeout(time: 5, unit: 'MINUTES') {
@@ -37,18 +55,21 @@ public def getBlueGreen(terragruntWorkingDir) {
 
   def jsonSlurper = new JsonSlurper()
   def tgOutput = jsonSlurper.parseText(tgOutputStdout)
+
+  aMaxSize, aMinSize, aDesiredCapacity = sumAsgs(tgOutput.autoScalingGroups.value, 'a')
+  bMaxSize, bMinSize, bDesiredCapacity = sumAsgs(tgOutput.autoScalingGroups.value, 'b')
+
   def Map outputs = [
   'blue_weight_a':tgOutput.blue_weight_a.value, 
   'blue_weight_b':tgOutput.blue_weight_b.value,
   'green_weight_a':tgOutput.green_weight_a.value,
   'green_weight_b':tgOutput.green_weight_b.value,
-
-  'a_max_size':tgOutput.auto_scaling_groups.value[0].max_size,
-  'a_min_size':tgOutput.auto_scaling_groups.value[0].min_size,
-  'a_desired_capacity':tgOutput.auto_scaling_groups.value[0].desired_capacity,
-  'b_max_size':tgOutput.auto_scaling_groups.value[1].max_size,
-  'b_min_size':tgOutput.auto_scaling_groups.value[1].min_size,
-  'b_desired_capacity':tgOutput.auto_scaling_groups.value[1].desired_capacity,
+  'a_max_size':aMaxSize,
+  'a_min_size':aMinSize,
+  'a_desired_capacity':aDesiredCapacity,
+  'b_max_size':bMaxSize,
+  'b_min_size':bMinSize,
+  'b_desired_capacity':bDesiredCapacity,
   'asg_configs': tgOutput.asg_configs.value,
   ]
   if (outputs.blue_weight_a >= 50) {

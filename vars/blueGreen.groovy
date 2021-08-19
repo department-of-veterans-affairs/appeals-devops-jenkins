@@ -23,20 +23,22 @@ public def tgApply(terragruntWorkingDir, tgArgs) {
 
 }
 
-public def sumAsgs(autoScalingGroups, target_group_name) {
+public def sumAsgs(autoScalingGroups, targetGroupName) {
   def Map indexLookup = [
     a: 0,
     b: 1
   ]
+  println(autoScalingGroups)
   def maxSize = 0
   def minSize = 0
   def desiredCapacity = 0
 
-  def startIndex = indexLookup[target_group_name]
+  def startIndex = indexLookup[targetGroupName]
   def endIndex = autoScalingGroups.size()
   def stepAmount = indexLookup.size() 
   // Returns a subset of either the 'a' or the 'b' asgs
   startIndex.step endIndex, stepAmount, {
+    println(autoScalingGroups[it])
     maxSize += autoScalingGroups[it].max_size.toInteger()
     minSize += autoScalingGroups[it].min_size.toInteger()
     desiredCapacity += autoScalingGroups[it].desiredCapacity.toInteger()

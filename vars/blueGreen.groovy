@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-// import groovy.json.JsonSlurper
+import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
 
 /**
@@ -58,14 +58,14 @@ public def getBlueGreen(terragruntWorkingDir) {
   echo tgOutputStdout
 
 
-  // def jsonSlurper = new JsonSlurper()
-  // def tgOutput = jsonSlurper.parseText(tgOutputStdout)
-  def tgOutput = readJSON text: tgOutputStdout
+  def jsonSlurper = new JsonSlurper()
+  def tgOutput = jsonSlurper.parseText(tgOutputStdout)
+  def autoScalingGroups = jsonSlurper.parseText(tgOutput.auto_scaling_groups.value)
 
   println(tgOutput)
-  println(tgOutput.auto_scaling_groups.value)
-  def (aMaxSize, aMinSize, aDesiredCapacity) = sumAsgs(tgOutput.auto_scaling_groups.value, 'a')
-  def (bMaxSize, bMinSize, bDesiredCapacity) = sumAsgs(tgOutput.auto_scaling_groups.value, 'b')
+  println(autoScalingGroups)
+  def (aMaxSize, aMinSize, aDesiredCapacity) = sumAsgs(autoScalingGroups, 'a')
+  def (bMaxSize, bMinSize, bDesiredCapacity) = sumAsgs(autoScalingGroups, 'b')
 
   def Map outputs = [
   'blue_weight_a':tgOutput.blue_weight_a.value, 

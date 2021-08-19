@@ -38,7 +38,7 @@ public def sumAsgs(autoScalingGroups, target_group_name) {
     minSize += autoScalingGroup[it].min_size
     desiredCapacity += autoScalingGroup[it].desiredCapacity
   }
-  return maxSize, minSize, desiredCapacity
+  return [ maxSize, minSize, desiredCapacity ]
 }
 
 public def getBlueGreen(terragruntWorkingDir) {
@@ -56,8 +56,8 @@ public def getBlueGreen(terragruntWorkingDir) {
   def jsonSlurper = new JsonSlurper()
   def tgOutput = jsonSlurper.parseText(tgOutputStdout)
 
-  aMaxSize, aMinSize, aDesiredCapacity = sumAsgs(tgOutput.autoScalingGroups.value, 'a')
-  bMaxSize, bMinSize, bDesiredCapacity = sumAsgs(tgOutput.autoScalingGroups.value, 'b')
+  def (aMaxSize, aMinSize, aDesiredCapacity) = sumAsgs(tgOutput.autoScalingGroups.value, 'a')
+  def (bMaxSize, bMinSize, bDesiredCapacity) = sumAsgs(tgOutput.autoScalingGroups.value, 'b')
 
   def Map outputs = [
   'blue_weight_a':tgOutput.blue_weight_a.value, 

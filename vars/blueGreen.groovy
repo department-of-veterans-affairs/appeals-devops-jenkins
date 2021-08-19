@@ -56,8 +56,8 @@ public def getBlueGreen(terragruntWorkingDir) {
   def jsonSlurper = new JsonSlurper()
   def tgOutput = jsonSlurper.parseText(tgOutputStdout)
 
-  def (aMaxSize, aMinSize, aDesiredCapacity) = sumAsgs(tgOutput.autoScalingGroups.value, 'a')
-  def (bMaxSize, bMinSize, bDesiredCapacity) = sumAsgs(tgOutput.autoScalingGroups.value, 'b')
+  def (aMaxSize, aMinSize, aDesiredCapacity) = sumAsgs(tgOutput.auto_scaling_groups.value, 'a')
+  def (bMaxSize, bMinSize, bDesiredCapacity) = sumAsgs(tgOutput.auto_scaling_groups.value, 'b')
 
   def Map outputs = [
   'blue_weight_a':tgOutput.blue_weight_a.value, 

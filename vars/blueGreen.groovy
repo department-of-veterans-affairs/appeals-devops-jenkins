@@ -60,7 +60,7 @@ public def getBlueGreen(terragruntWorkingDir) {
 
   def jsonSlurper = new JsonSlurper()
   def tgOutput = jsonSlurper.parseText(tgOutputStdout)
-  def autoScalingGroups = jsonSlurper.parseText(tgOutput.auto_scaling_groups.value)
+  def autoScalingGroups = tgOutput.auto_scaling_groups.value
 
   println(tgOutput)
   println(autoScalingGroups)

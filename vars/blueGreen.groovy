@@ -43,12 +43,12 @@ public def getBlueGreen(terragruntWorkingDir) {
   'green_weight_a':tgOutput.green_weight_a.value,
   'green_weight_b':tgOutput.green_weight_b.value,
 
-  'a_max_size':tgOutput.auto_scaling_groups.value[0].max_size,
-  'a_min_size':tgOutput.auto_scaling_groups.value[0].min_size,
-  'a_desired_capacity':tgOutput.auto_scaling_groups.value[0].desired_capacity,
-  'b_max_size':tgOutput.auto_scaling_groups.value[1].max_size,
-  'b_min_size':tgOutput.auto_scaling_groups.value[1].min_size,
-  'b_desired_capacity':tgOutput.auto_scaling_groups.value[1].desired_capacity,
+  'a_max_size':tgOutput.asg_configs.value[0].max_size,
+  'a_min_size':tgOutput.asg_configs.value[0].min_size,
+  'a_desired_capacity':tgOutput.asg_configs.value[0].desired_capacity,
+  'b_max_size':tgOutput.asg_configs.value[1].max_size,
+  'b_min_size':tgOutput.asg_configs.value[1].min_size,
+  'b_desired_capacity':tgOutput.asg_configs.value[1].desired_capacity,
   'asg_configs': tgOutput.asg_configs.value,
   ]
   if (outputs.blue_weight_a >= 50) {
@@ -82,7 +82,7 @@ public def deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {
   println 'Running deployGreen()'
   (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
   println "DEPLOYING ${green}"
-  if (green.compareTo('a').equals(0)) {
+  if (green.equals('a')) {
     def Map newAAsgConfigs = [
       'suffix':'a',
       'max_size': asgDesiredValues.maxSize,
@@ -99,7 +99,7 @@ public def deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {
     newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
   }
 
-  if (green.compareTo('b').equals(0)) {
+  if (green.equals('b')) {
     def Map newAAsgConfigs = [
       'suffix':'a',
       'max_size': outputs.a_max_size,
@@ -172,12 +172,12 @@ public def weightShift(terragruntWorkingDir, weightShift, extraArgs) {
 
   while (blueWeightA != 100 || blueWeightB != 100) {
     // blue weight shift starts here
-    if (blue.compareTo('a').equals(0)) {
+    if (blue.equals('a')) {
       blueWeightA = blueWeightA - weightShift
       blueWeightB = blueWeightB + weightShift
     } 
 
-    else if (blue.compareTo('b').equals(0)) {
+    else if (blue.equals('b')) {
       blueWeightA = blueWeightA + weightShift
       blueWeightB = blueWeightB - weightShift
     } 
@@ -223,15 +223,15 @@ public def customBlueWeights(terragruntWorkingDir, blueCustomWeightA, blueCustom
 public def destroyOldBlue(terragruntWorkingDir, extraArgs) {
   println "Running destroyOldBlue()"
   (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
-  if (blue.compareTo('a').equals(0)) {
+  if (blue.equals('a')) {
     old_blue = 'b'
   }
-  else if (blue.compareTo('b').equals(0)) {
+  else if (blue.equals('b')) {
       old_blue = 'a'
     }
   println "DESTROYING OLD BLUE ${old_blue}"
 
-  if (old_blue.compareTo('a').equals(0)) {
+  if (old_blue.equals('a')) {
     outputs["green_weight_a"] = 100
     outputs["green_weight_b"] = 0
     def Map newAAsgConfigs = [  
@@ -250,7 +250,7 @@ public def destroyOldBlue(terragruntWorkingDir, extraArgs) {
     newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]  
   }
 
-  if (old_blue.compareTo('b').equals(0)) {
+  if (old_blue.equals('b')) {
     outputs["green_weight_a"] = 0 
     outputs["green_weight_b"] = 100
     def Map newAAsgConfigs = [
@@ -283,7 +283,7 @@ public def destroy_green(terragruntWorkingDir) {
   outputs["green_weight_a"] = outputs.green_weight_a
         outputs["green_weight_b"] = outputs.green_weight_b
 
-  if (green.compareTo('a').equals(0)) {
+  if (green.equals('a')) {
     def Map newAAsgConfigs = [
       'suffix':'a',
       'max_size': 0, 
@@ -301,7 +301,7 @@ public def destroy_green(terragruntWorkingDir) {
     tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs) 
   }
 
-  if (green.compareTo('b').equals(0)) {
+  if (green.equals('b')) {
     def Map newAAsgConfigs = [
       'suffix':'a',
       'max_size': outputs.a_max_size,

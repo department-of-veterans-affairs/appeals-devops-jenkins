@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
-import gov.va.appeals.devops.Caseflow.SCALE_DOWN
+import static gov.va.appeals.devops.Caseflow.SCALE_DOWN
 
 /**
  * STAGE1 deployGreen

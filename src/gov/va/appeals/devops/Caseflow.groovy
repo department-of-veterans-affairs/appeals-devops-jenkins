@@ -12,8 +12,8 @@ static final DEPLOY_TYPE = [
                            ]
 static final SCALE_DOWN = [
                             certification: [
-                                           maxSize: 3
-                                           minSize: 1
+                                           maxSize: 3,
+                                           minSize: 1,
                                            desiredCapacity: 2
                                            ],
                             // efolder:       [
@@ -22,8 +22,8 @@ static final SCALE_DOWN = [
                             //                desiredCapacity: 6
                             //                ]
                             efolder:       [ // temp settings for testing
-                                           maxSize: 1
-                                           minSize: 1
+                                           maxSize: 1,
+                                           minSize: 1,
                                            desiredCapacity: 1
                                            ]
                           ]

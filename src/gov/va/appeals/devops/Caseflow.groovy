@@ -10,4 +10,21 @@ static final DEPLOY_TYPE = [
                            monitor: 'blueGreens',
                            sentry: "blueGreens"
                            ]
+static final SCALE_DOWN = [
+                            certification: [
+                                           maxSize: 3
+                                           minSize: 1
+                                           desiredCapacity: 2
+                                           ],
+                            // efolder:       [
+                            //                maxSize: 9
+                            //                minSize: 6
+                            //                desiredCapacity: 6
+                            //                ]
+                            efolder:       [ // temp settings for testing
+                                           maxSize: 1
+                                           minSize: 1
+                                           desiredCapacity: 1
+                                           ]
+                          ]
 }

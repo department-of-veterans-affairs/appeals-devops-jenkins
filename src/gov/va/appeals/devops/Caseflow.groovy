@@ -22,9 +22,9 @@ static final SCALE_DOWN = [
                             //                desiredCapacity: 6
                             //                ]
                             efolder:       [ // temp settings for testing
-                                           maxSize: 1,
-                                           minSize: 1,
-                                           desiredCapacity: 1
+                                           maxSize: 2,
+                                           minSize: 2,
+                                           desiredCapacity: 2
                                            ]
                           ]
 }

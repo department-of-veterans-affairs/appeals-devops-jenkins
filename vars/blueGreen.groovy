@@ -127,8 +127,8 @@ public def preDeployScaleDownBlue(terragruntWorkingDir, appName, extraArgs) {
 public def deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {
   println 'Testing new class'
   Region region = Region.US_GOV_WEST_1
-  asgClient = AutoScalingClient.builder().region(region).build()
-  myasg = new AutoScalingGroups(['appeals-preprod-efolder-main-b'], asgClient)
+  AutoScalingClient asgClient = AutoScalingClient.builder().region(region).build()
+  //myasg = new AutoScalingGroups(['appeals-preprod-efolder-main-b'], asgClient)
 
   println 'Running deployGreen()'
   (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)

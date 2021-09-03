@@ -3,7 +3,7 @@
 import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
 import static gov.va.appeals.devops.Caseflow.SCALE_DOWN
-import gov.va.appeals.devops.AutoScalingGroups
+// import gov.va.appeals.devops.AutoScalingGroups
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient
 import software.amazon.awssdk.regions.Region
 

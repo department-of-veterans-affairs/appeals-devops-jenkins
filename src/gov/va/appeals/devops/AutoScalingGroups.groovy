@@ -23,10 +23,7 @@ class AutoScalingGroups implements java.io.Serializable {
 
   AutoScalingGroups(asgNames) {
     this.asgNames = asgNames
-    this.asgClient = AutoScalingClient
-                       .builder()
-                       .region(this.region)
-                       .build()
+    this.asgClient = AutoScalingClient.builder().region(this.region).build()
   }
 
   void updateAsgs() {

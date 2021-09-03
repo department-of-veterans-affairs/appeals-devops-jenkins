@@ -40,8 +40,9 @@ class AutoScalingGroups {
   Integer instancesInAllAsgs() {
     this.updateAsgs()
     totalInstances = 0
-    for asg in self.autoScalingGroups:
+    for(asg in self.autoScalingGroups) {
       totalInstances += asg.instances().size()
+    }
     return totalInstances
   }
 }

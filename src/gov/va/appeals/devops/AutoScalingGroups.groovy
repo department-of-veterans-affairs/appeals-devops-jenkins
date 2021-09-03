@@ -29,7 +29,7 @@ class AutoScalingGroups {
                        .build()
   }
 
-  updateAsgs() {
+  void updateAsgs() {
     this.autoScalingGroups = asgClient.describeAutoScalingGroups(
                               DescribeAutoScalingGroupsRequest
                                 .builder()
@@ -37,7 +37,7 @@ class AutoScalingGroups {
                                 .build())
   }
 
-  instancesInAllAsgs() {
+  Integer instancesInAllAsgs() {
     this.updateAsgs()
     totalInstances = 0
     for asg in self.autoScalingGroups:

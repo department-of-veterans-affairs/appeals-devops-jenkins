@@ -1,6 +1,5 @@
 #!/usr/bin/env groovy
 @Grab('software.amazon.awssdk:autoscaling:2.17.33')
-@Grab('software.amazon.awssdk:ec2:2.17.33')
 import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
 import static gov.va.appeals.devops.Caseflow.SCALE_DOWN
@@ -129,6 +128,7 @@ public def preDeployScaleDownBlue(terragruntWorkingDir, appName, extraArgs) {
 public def deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {
   println 'Testing new class'
   Region region = Region.US_GOV_WEST_1
+  println region
   AutoScalingClient asgClient = AutoScalingClient.builder().region(region).build()
   //myasg = new AutoScalingGroups(['appeals-preprod-efolder-main-b'], asgClient)
 

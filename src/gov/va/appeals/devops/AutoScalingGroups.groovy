@@ -19,11 +19,10 @@ class AutoScalingGroups implements java.io.Serializable {
   DescribeAutoScalingGroupsResponse autoScalingGroups
   List asgInstances
   String asgNames
-  Region region = Region.US_GOV_WEST_1
 
-  AutoScalingGroups(asgNames) {
+  AutoScalingGroups(asgNames, asgClient) {
     this.asgNames = asgNames
-    this.asgClient = AutoScalingClient.builder().region(this.region).build()
+    this.asgClient =asgClient
   }
 
   void updateAsgs() {

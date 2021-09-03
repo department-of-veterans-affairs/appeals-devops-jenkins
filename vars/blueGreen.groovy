@@ -1,5 +1,6 @@
 #!/usr/bin/env groovy
 @Grab('software.amazon.awssdk:autoscaling:2.17.33')
+@Grab('software.amazon.awssdk:ec2:2.17.33')
 import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
 import static gov.va.appeals.devops.Caseflow.SCALE_DOWN

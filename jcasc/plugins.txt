@@ -1,5 +1,6 @@
 workflow-aggregator
 blueocean
+build-blocker-plugin
 configuration-as-code
 docker-workflow
 job-dsl

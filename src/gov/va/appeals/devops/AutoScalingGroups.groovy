@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.autoscaling.model.*
 //println asg_instances
 //println asg_instances.size()
 
-class AutoScalingGroups {
+class AutoScalingGroups implements java.io.Serializable {
   AutoScalingClient asgClient
   DescribeAutoScalingGroupsResponse autoScalingGroups
   List asgInstances

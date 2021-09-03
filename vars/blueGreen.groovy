@@ -2,6 +2,7 @@
 import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
 import static gov.va.appeals.devops.Caseflow.SCALE_DOWN
+import gov.va.appeals.devops.AutoScalingGroups
 
 /**
  * STAGE1 deployGreen
@@ -122,6 +123,9 @@ public def preDeployScaleDownBlue(terragruntWorkingDir, appName, extraArgs) {
 }
 
 public def deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {
+  println 'Testing new class'
+  myasg = new AutoScalingGroups(['appeals-preprod-efolder-main-b'])
+
   println 'Running deployGreen()'
   (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
   println "DEPLOYING ${green}"

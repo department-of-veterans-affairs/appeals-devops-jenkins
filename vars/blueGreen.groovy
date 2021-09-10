@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
+import static gov.va.appeals.devops.Caseflow.SCALE_DOWN
 
 /**
  * STAGE1 deployGreen
@@ -76,6 +77,48 @@ public def getBlueGreen(terragruntWorkingDir) {
   println "BLUE = ${blue}"
   println "GREEN = ${green}"
   return [blue, green, outputs]
+}
+
+public def preDeployScaleDownBlue(terragruntWorkingDir, appName, extraArgs) {
+  println "Running pre deployment scale down for blue."
+  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
+  println "Scaling down blue"
+  if (blue.equals('a')) {
+    def Map newAAsgConfigs = [
+      'suffix':'a',
+      'max_size': SCALE_DOWN[appName]['maxSize'],
+      'min_size': SCALE_DOWN[appName]['minSize'],
+      'desired_capacity': SCALE_DOWN[appName]['desiredCapacity']
+    ]
+
+    def Map newBAsgConfigs = [
+      'suffix':'b',
+      'max_size': 0,
+      'min_size': 0,
+      'desired_capacity': 0
+    ]
+    newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
+  }
+
+  if (blue.equals('b')) {
+    def Map newAAsgConfigs = [
+      'suffix':'a',
+      'max_size': 0,
+      'min_size': 0,
+      'desired_capacity': 0
+    ]
+
+    def Map newBAsgConfigs = [
+      'suffix':'b',
+      'max_size': SCALE_DOWN[appName]['maxSize'],
+      'min_size': SCALE_DOWN[appName]['minSize'],
+      'desired_capacity': SCALE_DOWN[appName]['desiredCapacity']
+    ]
+    newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
+  }
+
+  tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)
+  tgApply(terragruntWorkingDir, tgArgs)
 }
 
 public def deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {

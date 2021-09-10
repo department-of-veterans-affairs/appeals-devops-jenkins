@@ -17,8 +17,8 @@ static final SCALE_DOWN = [
                                            desiredCapacity: 2
                                            ],
                             efolder:       [
-                                           maxSize: 9
-                                           minSize: 6
+                                           maxSize: 9,
+                                           minSize: 6,
                                            desiredCapacity: 6
                                            ]
                           ]

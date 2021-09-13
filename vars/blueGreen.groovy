@@ -16,7 +16,7 @@ import static gov.va.appeals.devops.Caseflow.SCALE_DOWN
 
 public def tgApply(terragruntWorkingDir, tgArgs) {
   println 'Running tgApply()'
-  TERRAGRUNT_COMMAND = "terragrunt apply -auto-approve --terragrunt-working-dir ${terragruntWorkingDir} ${tgArgs}"
+  TERRAGRUNT_COMMAND = "set +x\n terragrunt apply -auto-approve --terragrunt-working-dir ${terragruntWorkingDir} ${tgArgs}"
   println TERRAGRUNT_COMMAND
   timeout(time: 15, unit: 'MINUTES') {
      sh TERRAGRUNT_COMMAND

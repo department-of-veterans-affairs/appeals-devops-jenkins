@@ -16,7 +16,7 @@ import static gov.va.appeals.devops.Caseflow.SCALE_DOWN
 
 public def tgApply(terragruntWorkingDir, tgArgs) {
   println 'Running tgApply()'
-  TERRAGRUNT_COMMAND = "set +x\n terragrunt apply -auto-approve --terragrunt-working-dir ${terragruntWorkingDir} ${tgArgs}"
+  TERRAGRUNT_COMMAND = "set -e\n terragrunt apply -auto-approve --terragrunt-working-dir ${terragruntWorkingDir} ${tgArgs}"
   println TERRAGRUNT_COMMAND
   timeout(time: 15, unit: 'MINUTES') {
      sh TERRAGRUNT_COMMAND
@@ -27,11 +27,11 @@ public def tgApply(terragruntWorkingDir, tgArgs) {
 public def getBlueGreen(terragruntWorkingDir) {
   println "Running getBlueGreen()"
   timeout(time: 5, unit: 'MINUTES') {
-    tgInitStdout = sh(returnStdout: true, script: "set +x\n terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
+    tgInitStdout = sh(returnStdout: true, script: "set +x -e\n terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
   }
   echo tgInitStdout
   timeout(time: 5, unit: 'MINUTES') {
-    tgOutputStdout = sh(returnStdout: true, script: "set +x\n terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
+    tgOutputStdout = sh(returnStdout: true, script: "set +x -e\n terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
   }
   echo tgOutputStdout
 

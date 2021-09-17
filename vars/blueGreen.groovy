@@ -25,11 +25,17 @@ public def tgApply(terragruntWorkingDir, tgArgs) {
 }
 
 public def getBlueGreen(terragruntWorkingDir) {
-  println "Running getBlueGreen()"
-  timeout(time: 5, unit: 'MINUTES') {
-    tgInitStdout = sh(returnStdout: true, script: "set +x -e\n terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
+  terragruntInitialized = fileExists "${terragruntWorkingDir}/.terragrunt-cache"
+  if (!terragruntInitialized) {
+    println "Initializing Terragrunt."
+    timeout(time: 5, unit: 'MINUTES') {
+      tgInitStdout = sh(returnStdout: true, script: "set +x -e\n terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
+      echo tgInitStdout
+    }
+  } else {
+    println "Terragrunt already initialized."
   }
-  echo tgInitStdout
+  println "Running getBlueGreen()"
   timeout(time: 5, unit: 'MINUTES') {
     tgOutputStdout = sh(returnStdout: true, script: "set +x -e\n terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
   }

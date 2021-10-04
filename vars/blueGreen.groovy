@@ -29,7 +29,9 @@ public getBlueGreen(terragruntWorkingDir) {
   if (!terragruntInitialized) {
     println 'Initializing Terragrunt.'
     timeout(time: 5, unit: 'MINUTES') {
-      tgInitStdout = sh(returnStdout: true, script: "set +x -e\n terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
+      tgInitStdout = sh(
+                        returnStdout: true,
+                        script: "set +x -e\n terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
       echo tgInitStdout
     }
   } else {
@@ -37,7 +39,9 @@ public getBlueGreen(terragruntWorkingDir) {
   }
   println 'Running getBlueGreen()'
   timeout(time: 5, unit: 'MINUTES') {
-    tgOutputStdout = sh(returnStdout: true, script: "set +x -e\n terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
+    tgOutputStdout = sh(
+                        returnStdout: true,
+                        script: "set +x -e\n terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
   }
   echo tgOutputStdout
 
@@ -64,8 +68,8 @@ public getBlueGreen(terragruntWorkingDir) {
     blue = 'b'
   }
   else {
-    println 'ERROR: Neither blue_weight_a or blue_weight_b is greater than 50'
-    System.exit(1)
+    currentBuild.result = 'ABORTED'
+    error('ERROR: Neither blue_weight_a or blue_weight_b is greater than 50')
   }
 
   if (outputs.green_weight_a.equals(100)) {
@@ -75,8 +79,8 @@ public getBlueGreen(terragruntWorkingDir) {
     green = 'b'
   }
   else {
-    println 'ERROR: Neither green_weight_a or green_weight_b is set to 100'
-    System.exit(1)
+    currentBuild.result = 'ABORTED'
+    error('ERROR: Neither green_weight_a or green_weight_b is set to 100')
   }
   println "OUTPUTS = ${outputs}"
   println "BLUE = ${blue}"

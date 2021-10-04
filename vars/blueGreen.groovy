@@ -1,12 +1,13 @@
 #!/usr/bin/env groovy
-import groovy.json.JsonSlurper
-import groovy.json.JsonBuilder
 import static gov.va.appeals.devops.Caseflow.SCALE_DOWN
+
+import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
 
 /**
  * STAGE1 deployGreen
 
- * STAGE2 run_tests_on_green 
+ * STAGE2 run_tests_on_green
 
  * STAGE3 if green_test_result = true: weight shift
 
@@ -14,38 +15,36 @@ import static gov.va.appeals.devops.Caseflow.SCALE_DOWN
 
 */
 
-public def tgApply(terragruntWorkingDir, tgArgs) {
+public tgApply(terragruntWorkingDir, tgArgs) {
   println 'Running tgApply()'
   TERRAGRUNT_COMMAND = "set -e\n terragrunt apply -auto-approve --terragrunt-working-dir ${terragruntWorkingDir} ${tgArgs}"
   println TERRAGRUNT_COMMAND
   timeout(time: 15, unit: 'MINUTES') {
-     sh TERRAGRUNT_COMMAND
+    sh TERRAGRUNT_COMMAND
   }
-
 }
 
-public def getBlueGreen(terragruntWorkingDir) {
+public getBlueGreen(terragruntWorkingDir) {
   terragruntInitialized = fileExists "${terragruntWorkingDir}/.terragrunt-cache"
   if (!terragruntInitialized) {
-    println "Initializing Terragrunt."
+    println 'Initializing Terragrunt.'
     timeout(time: 5, unit: 'MINUTES') {
       tgInitStdout = sh(returnStdout: true, script: "set +x -e\n terragrunt init --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
       echo tgInitStdout
     }
   } else {
-    println "Terragrunt already initialized."
+    println 'Terragrunt already initialized.'
   }
-  println "Running getBlueGreen()"
+  println 'Running getBlueGreen()'
   timeout(time: 5, unit: 'MINUTES') {
     tgOutputStdout = sh(returnStdout: true, script: "set +x -e\n terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
   }
   echo tgOutputStdout
 
-
   def jsonSlurper = new JsonSlurper()
   def tgOutput = jsonSlurper.parseText(tgOutputStdout)
-  def Map outputs = [
-  'blue_weight_a':tgOutput.blue_weight_a.value, 
+  Map outputs = [
+  'blue_weight_a':tgOutput.blue_weight_a.value,
   'blue_weight_b':tgOutput.blue_weight_b.value,
   'green_weight_a':tgOutput.green_weight_a.value,
   'green_weight_b':tgOutput.green_weight_b.value,
@@ -63,10 +62,10 @@ public def getBlueGreen(terragruntWorkingDir) {
   }
   else if (outputs.blue_weight_b >= 50) {
     blue = 'b'
-  } 
+  }
   else {
-    println "ERROR: Neither blue_weight_a or blue_weight_b is greater than 50"
-    System.exit(1)  
+    println 'ERROR: Neither blue_weight_a or blue_weight_b is greater than 50'
+    System.exit(1)
   }
 
   if (outputs.green_weight_a.equals(100)) {
@@ -74,9 +73,9 @@ public def getBlueGreen(terragruntWorkingDir) {
   }
   else if (outputs.green_weight_b.equals(100)) {
     green = 'b'
-  } 
+  }
   else {
-    println "ERROR: Neither green_weight_a or green_weight_b is set to 100"
+    println 'ERROR: Neither green_weight_a or green_weight_b is set to 100'
     System.exit(1)
   }
   println "OUTPUTS = ${outputs}"
@@ -85,19 +84,19 @@ public def getBlueGreen(terragruntWorkingDir) {
   return [blue, green, outputs]
 }
 
-public def preDeployScaleDownBlue(terragruntWorkingDir, appName, extraArgs) {
-  println "Running pre deployment scale down for blue."
+public preDeployScaleDownBlue(terragruntWorkingDir, appName, extraArgs) {
+  println 'Running pre deployment scale down for blue.'
   (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
-  println "Scaling down blue"
+  println 'Scaling down blue'
   if (blue.equals('a')) {
-    def Map newAAsgConfigs = [
+    Map newAAsgConfigs = [
       'suffix':'a',
       'max_size': SCALE_DOWN[appName]['maxSize'],
       'min_size': SCALE_DOWN[appName]['minSize'],
       'desired_capacity': SCALE_DOWN[appName]['desiredCapacity']
     ]
 
-    def Map newBAsgConfigs = [
+    Map newBAsgConfigs = [
       'suffix':'b',
       'max_size': 0,
       'min_size': 0,
@@ -107,14 +106,14 @@ public def preDeployScaleDownBlue(terragruntWorkingDir, appName, extraArgs) {
   }
 
   if (blue.equals('b')) {
-    def Map newAAsgConfigs = [
+    Map newAAsgConfigs = [
       'suffix':'a',
       'max_size': 0,
       'min_size': 0,
       'desired_capacity': 0
     ]
 
-    def Map newBAsgConfigs = [
+    Map newBAsgConfigs = [
       'suffix':'b',
       'max_size': SCALE_DOWN[appName]['maxSize'],
       'min_size': SCALE_DOWN[appName]['minSize'],
@@ -127,19 +126,19 @@ public def preDeployScaleDownBlue(terragruntWorkingDir, appName, extraArgs) {
   tgApply(terragruntWorkingDir, tgArgs)
 }
 
-public def deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {
+public deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {
   println 'Running deployGreen()'
   (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
   println "DEPLOYING ${green}"
   if (green.equals('a')) {
-    def Map newAAsgConfigs = [
+    Map newAAsgConfigs = [
       'suffix':'a',
       'max_size': asgDesiredValues.maxSize,
       'min_size': asgDesiredValues.minSize,
       'desired_capacity': asgDesiredValues.desiredCapacity
     ]
 
-    def Map newBAsgConfigs = [
+    Map newBAsgConfigs = [
       'suffix':'b',
       'max_size': outputs.b_max_size,
       'min_size': outputs.b_min_size,
@@ -149,14 +148,14 @@ public def deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {
   }
 
   if (green.equals('b')) {
-    def Map newAAsgConfigs = [
+    Map newAAsgConfigs = [
       'suffix':'a',
       'max_size': outputs.a_max_size,
       'min_size': outputs.a_min_size,
       'desired_capacity':outputs.a_desired_capacity
     ]
 
-    def Map newBAsgConfigs = [
+    Map newBAsgConfigs = [
       'suffix':'b',
       'max_size': asgDesiredValues.maxSize,
       'min_size': asgDesiredValues.minSize,
@@ -169,48 +168,48 @@ public def deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {
   tgApply(terragruntWorkingDir, tgArgs)
 }
 
-public def tgArgsBuilder(outputs, newAsgConfigs, extraArgs) {
-  outputs.remove("asg_configs")
-  outputs.remove("a_max_size")
-  outputs.remove("a_min_size")
-  outputs.remove("a_desired_capacity")
-  outputs.remove("b_max_size")
-  outputs.remove("b_min_size")
-  outputs.remove("b_desired_capacity")
-  def String tgArgs = ""
+public tgArgsBuilder(outputs, newAsgConfigs, extraArgs) {
+  outputs.remove('asg_configs')
+  outputs.remove('a_max_size')
+  outputs.remove('a_min_size')
+  outputs.remove('a_desired_capacity')
+  outputs.remove('b_max_size')
+  outputs.remove('b_min_size')
+  outputs.remove('b_desired_capacity')
+  String tgArgs = ''
   for (item in outputs) {
     tgArgs = tgArgs + "-var=${item.key}=${item.value} "
   }
 
-  def String asgConfigs = ""
+  String asgConfigs = ''
   for (item in newAsgConfigs) {
     def builder = new JsonBuilder()
     builder(item)
-    asgConfigs = asgConfigs + builder.toString() + ","
+    asgConfigs = asgConfigs + builder.toString() + ','
   }
   // The single quotes are required or bash will try to expand asg_configs
   tgArgs = tgArgs + "'-var=asg_configs=[${asgConfigs}]'"
   if (extraArgs) {
-      tgArgs = tgArgs + " " + extraArgs
-    }
+    tgArgs = tgArgs + ' ' + extraArgs
+  }
   return tgArgs
 }
 
-public def weightShift(terragruntWorkingDir, weightShift, extraArgs) {
+public weightShift(terragruntWorkingDir, weightShift, extraArgs) {
   println 'Running weightShift()'
   (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
 
   Integer blueWeightA = outputs.blue_weight_a
   Integer blueWeightB = outputs.blue_weight_b
 
-  def Map newAAsgConfigs = [  
+  Map newAAsgConfigs = [
     'suffix':'a',
     'max_size': outputs.a_max_size,
     'min_size': outputs.a_min_size,
     'desired_capacity':outputs.a_desired_capacity
   ]
 
-  def Map newBAsgConfigs = [
+  Map newBAsgConfigs = [
     'suffix':'b',
     'max_size': outputs.b_max_size,
     'min_size': outputs.b_min_size,
@@ -224,40 +223,40 @@ public def weightShift(terragruntWorkingDir, weightShift, extraArgs) {
     if (blue.equals('a')) {
       blueWeightA = blueWeightA - weightShift
       blueWeightB = blueWeightB + weightShift
-    } 
+    }
 
     else if (blue.equals('b')) {
       blueWeightA = blueWeightA + weightShift
       blueWeightB = blueWeightB - weightShift
-    } 
+    }
 
     if (blueWeightA == (100 +  weightShift) || blueWeightB == (100 + weightShift)) {
-          break 
-        }
+      break
+    }
 
-    outputs["blue_weight_a"] = blueWeightA
-    outputs["blue_weight_b"] = blueWeightB
+    outputs['blue_weight_a'] = blueWeightA
+    outputs['blue_weight_b'] = blueWeightB
 
-    tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs) 
+    tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)
     tgApply(terragruntWorkingDir, tgArgs)
   }
 }
 
-public def customBlueWeights(terragruntWorkingDir, blueCustomWeightA, blueCustomWeightB) {
+public customBlueWeights(terragruntWorkingDir, blueCustomWeightA, blueCustomWeightB) {
   println 'Running customBlueWeights()'
   (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
 
-  outputs["blue_weight_a"] = blueCustomWeightA
-  outputs["blue_weight_b"] = blueCustomWeightB
+  outputs['blue_weight_a'] = blueCustomWeightA
+  outputs['blue_weight_b'] = blueCustomWeightB
 
-  def Map newAAsgConfigs = [
+  Map newAAsgConfigs = [
     'suffix':'a',
     'max_size': outputs.a_max_size,
     'min_size': outputs.a_min_size,
     'desired_capacity':outputs.a_desired_capacity
   ]
 
-  def Map newBAsgConfigs = [
+  Map newBAsgConfigs = [
     'suffix':'b',
     'max_size': outputs.b_max_size,
     'min_size': outputs.b_min_size,
@@ -265,108 +264,107 @@ public def customBlueWeights(terragruntWorkingDir, blueCustomWeightA, blueCustom
   ]
 
   newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
-  tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs) 
+  tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)
   tgApply(terragruntWorkingDir, tgArgs)
 }
 
-public def destroyOldBlue(terragruntWorkingDir, extraArgs) {
-  println "Running destroyOldBlue()"
+public destroyOldBlue(terragruntWorkingDir, extraArgs) {
+  println 'Running destroyOldBlue()'
   (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
   if (blue.equals('a')) {
     old_blue = 'b'
   }
   else if (blue.equals('b')) {
-      old_blue = 'a'
-    }
+    old_blue = 'a'
+  }
   println "DESTROYING OLD BLUE ${old_blue}"
 
   if (old_blue.equals('a')) {
-    outputs["green_weight_a"] = 100
-    outputs["green_weight_b"] = 0
-    def Map newAAsgConfigs = [  
+    outputs['green_weight_a'] = 100
+    outputs['green_weight_b'] = 0
+    Map newAAsgConfigs = [
       'suffix':'a',
       'max_size': 0,
       'min_size': 0,
       'desired_capacity': 0
     ]
 
-    def Map newBAsgConfigs = [
-      'suffix':'b',
-      'max_size': outputs.b_max_size,
-      'min_size': outputs.b_min_size,
-      'desired_capacity': outputs.b_desired_capacity
-    ]
-    newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]  
-  }
-
-  if (old_blue.equals('b')) {
-    outputs["green_weight_a"] = 0 
-    outputs["green_weight_b"] = 100
-    def Map newAAsgConfigs = [
-      'suffix':'a',
-      'max_size': outputs.a_max_size, 
-      'min_size': outputs.a_min_size,
-      'desired_capacity': outputs.a_desired_capacity
-    ]
-
-    def Map newBAsgConfigs = [
-      'suffix':'b',
-      'max_size': 0,
-      'min_size': 0,
-      'desired_capacity': 0 
-    ]
-    newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]  
-  }
-
-  tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs) 
-  tgApply(terragruntWorkingDir, tgArgs)
-}
-
-public def destroy_green(terragruntWorkingDir) {
-  println 'Running destroyGreen()'
-  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
-  println "DESTROYING ${green}"
-
-  outputs["blue_weight_a"] = outputs.blue_weight_a
-        outputs["blue_weight_b"] = outputs.blue_weight_b
-  outputs["green_weight_a"] = outputs.green_weight_a
-        outputs["green_weight_b"] = outputs.green_weight_b
-
-  if (green.equals('a')) {
-    def Map newAAsgConfigs = [
-      'suffix':'a',
-      'max_size': 0, 
-      'min_size': 0,
-      'desired_capacity': 0
-    ]
-
-    def Map newBAsgConfigs = [
+    Map newBAsgConfigs = [
       'suffix':'b',
       'max_size': outputs.b_max_size,
       'min_size': outputs.b_min_size,
       'desired_capacity': outputs.b_desired_capacity
     ]
     newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
-    tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs) 
   }
 
-  if (green.equals('b')) {
-    def Map newAAsgConfigs = [
+  if (old_blue.equals('b')) {
+    outputs['green_weight_a'] = 0
+    outputs['green_weight_b'] = 100
+    Map newAAsgConfigs = [
       'suffix':'a',
       'max_size': outputs.a_max_size,
       'min_size': outputs.a_min_size,
       'desired_capacity': outputs.a_desired_capacity
     ]
 
-    def Map newBAsgConfigs = [
+    Map newBAsgConfigs = [
       'suffix':'b',
-      'max_size': 0, 
-      'min_size': 0, 
-      'desired_capacity': 0 
-    ] 
-    newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]    
+      'max_size': 0,
+      'min_size': 0,
+      'desired_capacity': 0
+    ]
+    newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
   }
-  tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs) 
+
+  tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)
   tgApply(terragruntWorkingDir, tgArgs)
 }
 
+public destroy_green(terragruntWorkingDir) {
+  println 'Running destroyGreen()'
+  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
+  println "DESTROYING ${green}"
+
+  outputs['blue_weight_a'] = outputs.blue_weight_a
+  outputs['blue_weight_b'] = outputs.blue_weight_b
+  outputs['green_weight_a'] = outputs.green_weight_a
+  outputs['green_weight_b'] = outputs.green_weight_b
+
+  if (green.equals('a')) {
+    Map newAAsgConfigs = [
+      'suffix':'a',
+      'max_size': 0,
+      'min_size': 0,
+      'desired_capacity': 0
+    ]
+
+    Map newBAsgConfigs = [
+      'suffix':'b',
+      'max_size': outputs.b_max_size,
+      'min_size': outputs.b_min_size,
+      'desired_capacity': outputs.b_desired_capacity
+    ]
+    newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
+    tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)
+  }
+
+  if (green.equals('b')) {
+    Map newAAsgConfigs = [
+      'suffix':'a',
+      'max_size': outputs.a_max_size,
+      'min_size': outputs.a_min_size,
+      'desired_capacity': outputs.a_desired_capacity
+    ]
+
+    Map newBAsgConfigs = [
+      'suffix':'b',
+      'max_size': 0,
+      'min_size': 0,
+      'desired_capacity': 0
+    ]
+    newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
+  }
+  tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)
+  tgApply(terragruntWorkingDir, tgArgs)
+}

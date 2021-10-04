@@ -1,3 +1,3 @@
 def defaultBranch() {
-    return 'master'
+  return 'master'
 }

@@ -18,9 +18,7 @@ def checkout() {
   try {
     deploymentBranch = "${DEPLOYMENT_DEV_BRANCH}"
   }
-  // Catching a general exception is a code smell because it is too broad.
-  // Do we know what type of exception this will be?
-  catch (Exception ex) { // groovylint-disable-line CatchException
+  catch (MissingPropertyException ex) {
     deploymentBranch = 'master'
   }
   println("Cloning deployment repo with branch ${deploymentBranch}...")

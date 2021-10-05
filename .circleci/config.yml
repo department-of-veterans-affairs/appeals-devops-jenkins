@@ -1,0 +1,23 @@
+version: 1.0
+
+jobs:
+  groovy-linter:
+    docker:
+      - image: cimg/node:current
+    steps:
+      - checkout
+      - run:
+          name: Set up node install directory
+          command: mkdir -p ~/.local/bin && npm config set prefix '~/.local' 
+      - run:
+          name: Install latest version of npm-groovy-lint
+          command: npm install -g npm-groovy-lint
+      - run:
+          name: groovy-lint
+          command: npm-groovy-lint --failon warning
+
+workflows:
+  version: 1
+  build:
+    jobs:
+      - groovy-linter

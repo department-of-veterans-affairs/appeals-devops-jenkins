@@ -1,3 +1,4 @@
+// groovylint-disable JavaIoPackageAccess
 import jenkins.model.Jenkins
 import jenkins.security.s2m.AdminWhitelistRule
 import org.jenkinsci.plugins.scriptsecurity.scripts.ScriptApproval

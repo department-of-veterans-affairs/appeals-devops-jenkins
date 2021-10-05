@@ -38,7 +38,7 @@ public getBlueGreen(terragruntWorkingDir) {
     println 'Terragrunt already initialized.'
   }
   println 'Running getBlueGreen()'
-  timeout(time: 5, unit: 'MINUTES') {
+  timeout(time: 5, unit: 'MINUTES') { // groovylint-disable-line DuplicateMapLiteral
     tgOutputStdout = sh(
                         returnStdout: true,
                         script: "set +x -e\n terragrunt output -json --terragrunt-source-update --terragrunt-working-dir ${terragruntWorkingDir}")
@@ -286,7 +286,7 @@ public destroyOldBlue(terragruntWorkingDir, extraArgs) {
   if (old_blue.equals('a')) {
     outputs['green_weight_a'] = 100
     outputs['green_weight_b'] = 0
-    Map newAAsgConfigs = [
+    Map newAAsgConfigs = [ // groovylint-disable-line DuplicateMapLiteral
       'suffix':'a',
       'max_size': 0,
       'min_size': 0,
@@ -312,7 +312,7 @@ public destroyOldBlue(terragruntWorkingDir, extraArgs) {
       'desired_capacity': outputs.a_desired_capacity
     ]
 
-    Map newBAsgConfigs = [
+    Map newBAsgConfigs = [ // groovylint-disable-line DuplicateMapLiteral
       'suffix':'b',
       'max_size': 0,
       'min_size': 0,
@@ -336,7 +336,7 @@ public destroy_green(terragruntWorkingDir) {
   outputs['green_weight_b'] = outputs.green_weight_b
 
   if (green.equals('a')) {
-    Map newAAsgConfigs = [
+    Map newAAsgConfigs = [ // groovylint-disable-line DuplicateMapLiteral
       'suffix':'a',
       'max_size': 0,
       'min_size': 0,
@@ -361,7 +361,7 @@ public destroy_green(terragruntWorkingDir) {
       'desired_capacity': outputs.a_desired_capacity
     ]
 
-    Map newBAsgConfigs = [
+    Map newBAsgConfigs = [ // groovylint-disable-line DuplicateMapLiteral
       'suffix':'b',
       'max_size': 0,
       'min_size': 0,

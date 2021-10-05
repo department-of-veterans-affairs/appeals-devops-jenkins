@@ -1,3 +1,4 @@
+// groovylint-disable JavaIoPackageAccess
 @Grab('org.yaml:snakeyaml:1.17')
 
 import groovy.lang.GroovyClassLoader
@@ -10,14 +11,16 @@ import org.yaml.snakeyaml.Yaml
 @Field jobDefDir = new File(repoPath + '/jobdefs')
 
 @Field classLoader = new GroovyClassLoader(getClass().getClassLoader())
-def deploymentBranch
 
 def checkout() {
+  def deploymentBranch
   def jenkinsRepo = 'https://' + GIT_CREDENTIAL + '@github.com/department-of-veterans-affairs/appeals-deployment.git'
   try {
     deploymentBranch = "${DEPLOYMENT_DEV_BRANCH}"
   }
-  catch (Exception ex) {
+  // Catching a general exception is a code smell because it is too broad.
+  // Do we know what type of exception this will be?
+  catch (Exception ex) { // groovylint-disable-line CatchException
     deploymentBranch = 'master'
   }
   println("Cloning deployment repo with branch ${deploymentBranch}...")

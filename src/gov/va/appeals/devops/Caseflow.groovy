@@ -1,5 +1,8 @@
 package gov.va.appeals.devops
 
+/**
+* Static class for Appeals applications deployment configurations
+*/
 class Caseflow {
 
   static final CASEFLOW_APPS =  ['certification', 'efolder', 'monitor']

@@ -10,7 +10,7 @@ class Caseflow {
   static final UTILITY_APPS =  ['sentry', 'logstash']
   static final DEPLOY_TYPE = [
                               certification: 'deploys',
-                              efolder: 'deploys',
+                              efolder: 'blueGreens',
                               monitor: 'blueGreens',
                               sentry: 'blueGreens',
                               logstash: 'blueGreens'

@@ -1,0 +1,15 @@
+{
+        "extends": "recommended-jenkinsfile",
+        "rules": {
+                "formatting.Indentation": {
+                        "spacesPerIndentLevel": 2
+                },
+                "formatting.LineLength": {
+                        "length": 150
+                },
+                "design.Instanceof": "off",
+                "dry.DuplicateNumberLiteral": {
+                        "ignoreNumbers": "0,1,2,3,4,5,6,7,8,9,50,100"
+                }
+        }
+}

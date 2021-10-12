@@ -14,11 +14,10 @@ import groovy.json.JsonOutput
  * @param  cause Either the person or automation that drove the deployment.
 */
 def call(Map config) {
-
-    // create a deployment event in New Relic so we can audit our deploy history.
-    // for instance, you can see production Caseflow deploys here:
-    // https://rpm.newrelic.com/accounts/1788458/applications/80608544/deployments.
-    NEW_RELIC_APP_IDS = [
+  // create a deployment event in New Relic so we can audit our deploy history.
+  // for instance, you can see production Caseflow deploys here:
+  // https://rpm.newrelic.com/accounts/1788458/applications/80608544/deployments.
+  NEW_RELIC_APP_IDS = [
       certification: [
         prod: 80608544,
         preprod: 81409034,
@@ -31,18 +30,18 @@ def call(Map config) {
       ]
     ]
 
-    def newRelicApp = NEW_RELIC_APP_IDS[config.appName]
-    if (newRelicApp) {
-      def newRelicAppId = newRelicApp[config.environment]
-      if (newRelicAppId) {
-        jsonPayload = JsonOutput.toJson([
+  def newRelicApp = NEW_RELIC_APP_IDS[config.appName]
+  if (newRelicApp) {
+    def newRelicAppId = newRelicApp[config.environment]
+    if (newRelicAppId) {
+      jsonPayload = JsonOutput.toJson([
           deployment: [
             revision: config.commitHash,
             user: config.cause
           ]
         ])
 
-        node {
+      node {
           withCredentials([
             [
               // API token to post data to New Relic
@@ -63,9 +62,9 @@ def call(Map config) {
                 -d '${jsonPayload}'
           """
           }
-        }
-      } else {
-        print "New Relic deployment tracking is not enabled for ${config.appName} on ${config.environment}."
       }
+      } else {
+      print "New Relic deployment tracking is not enabled for ${config.appName} on ${config.environment}."
+    }
   }
 }

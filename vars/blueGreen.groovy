@@ -88,48 +88,6 @@ public getBlueGreen(terragruntWorkingDir) {
   return [blue, green, outputs]
 }
 
-public preDeployScaleDownBlue(terragruntWorkingDir, appName, extraArgs) {
-  println 'Running pre deployment scale down for blue.'
-  (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)
-  println 'Scaling down blue'
-  if (blue.equals('a')) {
-    Map newAAsgConfigs = [
-      'suffix':'a',
-      'max_size': SCALE_DOWN[appName]['maxSize'],
-      'min_size': SCALE_DOWN[appName]['minSize'],
-      'desired_capacity': SCALE_DOWN[appName]['desiredCapacity']
-    ]
-
-    Map newBAsgConfigs = [
-      'suffix':'b',
-      'max_size': 0,
-      'min_size': 0,
-      'desired_capacity': 0
-    ]
-    newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
-  }
-
-  if (blue.equals('b')) {
-    Map newAAsgConfigs = [
-      'suffix':'a',
-      'max_size': 0,
-      'min_size': 0,
-      'desired_capacity': 0
-    ]
-
-    Map newBAsgConfigs = [
-      'suffix':'b',
-      'max_size': SCALE_DOWN[appName]['maxSize'],
-      'min_size': SCALE_DOWN[appName]['minSize'],
-      'desired_capacity': SCALE_DOWN[appName]['desiredCapacity']
-    ]
-    newAsgConfigs = [newAAsgConfigs, newBAsgConfigs]
-  }
-
-  tgArgs = tgArgsBuilder(outputs, newAsgConfigs, extraArgs)
-  tgApply(terragruntWorkingDir, tgArgs)
-}
-
 public deployGreen(terragruntWorkingDir, asgDesiredValues, extraArgs) {
   println 'Running deployGreen()'
   (blue, green, outputs) = getBlueGreen(terragruntWorkingDir)

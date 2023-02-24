@@ -58,51 +58,63 @@ credentials:
             id: "SLACK_TEAM_DOMAIN"
             secret: "<jenkins.slack_team_domain>"
             description: "DSVA team on Slack"
+        # - string:
+        #     scope: GLOBAL
+        #     id: "SLACK_TOKEN"
+        #     secret: "<jenkins.slack_token>"
+        #     description: "Slack token"
+        # - string:
+        #     scope: GLOBAL
+        #     id: "DEPLOY_SLACK_TOKEN"
+        #     secret: "<jenkins.slack_token>"
+        #     description: "Deploy Slack token"
+        # - string:
+        #     scope: GLOBAL
+        #     id: "ALERT_SLACK_TOKEN"
+        #     secret: "<jenkins.slack_token>"
+        #     description: "Alert Slack Token"
+        # - string:
+        #     scope: GLOBAL
+        #     id: "TEST_SLACK_TOKEN"
+        #     secret: "<jenkins.slack_token>"
+        #     description: "Test Slack token"
         - string:
             scope: GLOBAL
-            id: "SLACK_TOKEN"
+            id: "VAEC_SLACK_TOKEN"
             secret: "<jenkins.slack_token>"
-            description: "Slack token"
+            description: "Vaec Slack token"
+        # Temporarily remove dsva related slack channels for initial vaec jenkins deployment
+        # - string:
+        #     scope: GLOBAL
+        #     id: "SLACK_CHANNEL"
+        #     secret: "<jenkins.slack_channel>"
+        #     description: "Regular Slack Channel"
+        # - string:
+        #     scope: GLOBAL
+        #     id: "DEPLOY_CHANNEL"
+        #     secret: "<jenkins.deploy_channel>"
+        #     description: "Deploy Slack Channel"
+        # - string:
+        #     scope: GLOBAL
+        #     id: "ALERT_SLACK_CHANNEL"
+        #     secret: "<jenkins.alert_channel>"
+        #     description: "Alert Slack Channel"
+        # - string:
+        #     scope: GLOBAL
+        #     id: "TEST_SLACK_CHANNEL"
+        #     secret: "<jenkins.test_channel>"
+        #     description: "Test Slack Channel"
+        # add a new entry for the vaec specific slack alert channel
         - string:
-            scope: GLOBAL
-            id: "DEPLOY_SLACK_TOKEN"
-            secret: "<jenkins.slack_token>"
-            description: "Deploy Slack token"
-        - string:
-            scope: GLOBAL
-            id: "ALERT_SLACK_TOKEN"
-            secret: "<jenkins.slack_token>"
-            description: "Alert Slack Token"
-        - string:
-            scope: GLOBAL
-            id: "TEST_SLACK_TOKEN"
-            secret: "<jenkins.slack_token>"
-            description: "Test Slack token"
-        - string:
-            scope: GLOBAL
-            id: "SLACK_CHANNEL"
-            secret: "<jenkins.slack_channel>"
-            description: "Regular Slack Channel"
-        - string:
-            scope: GLOBAL
-            id: "DEPLOY_CHANNEL"
-            secret: "<jenkins.deploy_channel>"
-            description: "Deploy Slack Channel"
-        - string:
-            scope: GLOBAL
-            id: "ALERT_SLACK_CHANNEL"
-            secret: "<jenkins.alert_channel>"
-            description: "Alert Slack Channel"
-        - string:
-            scope: GLOBAL
-            id: "TEST_SLACK_CHANNEL"
-            secret: "<jenkins.test_channel>"
-            description: "Test Slack Channel"
-        - string:
-            scope: GLOBAL
-            id: "NEW_RELIC_API_KEY"
-            secret: "<devops.new_relic_api_key>"
-            description: "New Relic API Key"
+           scope: GLOBAL
+           id: "VAEC_SLACK_CHANNEL"
+           secret: "<jenkins.vaec_channel>"
+           description: "VAEC Alert Slack Channel"
+        # - string:
+        #     scope: GLOBAL
+        #     id: "NEW_RELIC_API_KEY"
+        #     secret: "<devops.new_relic_api_key>"
+        #     description: "New Relic API Key"
         - usernamePassword:
             scope: GLOBAL
             id: "va-bot"
@@ -132,11 +144,13 @@ unclassified:
     baseUrl: ""
     tokenCredentialId: "SLACK_TOKEN"
     botUser: true
-    room: "#appeals-deployment"
+    room: "#appeals-alerts-vaec"
+    #room: "#appeals-deployment"
   globalLibraries:
     libraries:
       - name: "appeals-devops-jenkins"
-        defaultVersion: "master"
+        #set to VAEC branch for initial Jenkins deployment
+        defaultVersion: "aws-vaec-migration"
         implicit: true
         retriever:
           modernSCM:
@@ -162,11 +176,11 @@ jobs:
                 dsl(['seedJob.groovy'])
             }
             parameters {
-                stringParam('DEPLOYMENT_DEV_BRANCH', 'master', 'appeals-deployment branch')
+                stringParam('DEPLOYMENT_DEV_BRANCH', 'aws-vaec-migration', 'appeals-deployment branch')
             }
             triggers {
                 cron('H H(0-5) * * *')
             }
         }
-  - script: >
-      queue('seed-job')
+  # - script: >
+  #     queue('seed-job')

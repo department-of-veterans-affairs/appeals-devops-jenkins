@@ -177,6 +177,7 @@ jobs:
             }
             parameters {
                 stringParam('DEPLOYMENT_DEV_BRANCH', 'aws-vaec-migration', 'appeals-deployment branch')
+                booleanParam('SEED_JOB_DISABLED', 'true', 'Disable/enable the Jenkins jobs created by the seed-job')
             }
             triggers {
                 cron('H H(0-5) * * *')

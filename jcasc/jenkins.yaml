@@ -37,6 +37,8 @@ jenkins:
       env:
       - key: "AWS_DEFAULT_REGION"
         value: "<aws_region>"
+      - key: "ACCOUNT_ENV"
+        value: "<account_env>"
       - key: "PATH"
         value: "/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/aws/bin:/home/dsva/.local/bin:/home/dsva/bin"
   labelString: "appeals deploy devops"

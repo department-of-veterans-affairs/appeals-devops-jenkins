@@ -4,6 +4,8 @@ on:
   pull-request:
     branches:
       - master
+      - squillm/f-gh-migration-test
+      - Pre-Circle-Ci-Deletion
 
 jobs:
   groovy-linter:

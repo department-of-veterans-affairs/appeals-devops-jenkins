@@ -1,10 +1,9 @@
-name: Groovy Linter
+name: Appeals Devops Jenkins Groovy Linter
 
 on:
   workflow_dispatch:
   pull_request:
-    branches:
-      - master
+    types: [opened, reopened, edited, synchronize]
 
 jobs:
   groovy-linter:
@@ -14,12 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      #- name: Set up node install dir
-      #  run: mkdir -p ./.local/bin && npm config set prefix './.local' 
-
       - name: Install and run latest version of npm-groovy-lint
         run: npm install -g npm-groovy-lint
 
       - name: groovy-lint
         run: npm-groovy-lint --failon warning
-

@@ -1,7 +1,8 @@
 name: Groovy Linter
 
 on:
-  pull-request:
+  workflow_dispatch
+  pull_request:
     branches:
       - master
 
@@ -14,11 +15,11 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set up node install dir
-        run: mkdir -p ~/.local/bin && npm config set prefix '~/.local' 
+        run: mkdir -p ./.local/bin && npm config set prefix './.local' 
 
       - name: Install and run latest version of npm-groovy-lint
         run: npm install -g npm-groovy-lint
 
       - name: groovy-lint
-        run: ~/.local/bin/npm-groovy-lint --failon warning
+        run: ./.local/bin/npm-groovy-lint --failon warning
 

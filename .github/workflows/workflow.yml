@@ -1,9 +1,9 @@
 name: Groovy Linter
 
 on:
-  push:
+  pull-request:
     branches:
-      - f-gh-migration
+      - master
 
 jobs:
   groovy-linter:

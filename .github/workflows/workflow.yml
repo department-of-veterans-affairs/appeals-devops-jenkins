@@ -20,5 +20,7 @@ jobs:
         run: npm install -g npm-groovy-lint
 
       - name: groovy-lint
-        run: sudo npm-groovy-lint --failon warning
+        run: |
+          ls -la ~/.local/bin
+          npm-groovy-lint --failon warning
 

@@ -1,0 +1,20 @@
+name: Appeals Devops Jenkins Groovy Linter
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+
+jobs:
+  groovy-linter:
+    runs-on: ubuntu-latest
+    container:
+      image: node:latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install and run latest version of npm-groovy-lint
+        run: npm install -g npm-groovy-lint
+
+      - name: groovy-lint
+        run: npm-groovy-lint --failon warning

@@ -42,7 +42,7 @@ def call(Map stageParams) {
     }
 
   success_channel = stageParams.channel
-  failure_channel = stageParams.failure_channel ? stageParams.failure_channel : 'appeals-devops-alerts'
+  failure_channel = stageParams.failure_channel ? stageParams.failure_channel : 'appeals-alerts-vaec'
 
   try {
     if ( buildResult == 'SUCCESS' ) {

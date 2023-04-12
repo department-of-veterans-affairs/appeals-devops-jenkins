@@ -144,7 +144,7 @@ unclassified:
   slackNotifier:
     teamDomain: "dsva"
     baseUrl: ""
-    tokenCredentialId: "SLACK_TOKEN"
+    tokenCredentialId: "VAEC_SLACK_TOKEN"
     botUser: true
     room: "#appeals-alerts-vaec"
     #room: "#appeals-deployment"

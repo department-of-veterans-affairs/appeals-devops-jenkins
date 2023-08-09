@@ -14,7 +14,7 @@ class Caseflow {
                               monitor: 'blueGreens',
                               sentry: 'blueGreens',
                               logstash: 'blueGreens',
-                              caseflow-db-read: 'blueGreens'
+                              "caseflow-db-read": 'blueGreens'
                            ]
   static final SCALE_DOWN = [
                             certification: [

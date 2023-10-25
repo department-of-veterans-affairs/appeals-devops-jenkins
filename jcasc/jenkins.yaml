@@ -19,9 +19,9 @@ jenkins:
       allowCcTrayPermission: false
       allowGithubWebHookPermission: true
       authenticatedUserCreateJobPermission: false
-      authenticatedUserReadPermission: true
+      authenticatedUserReadPermission: false
       organizationNames: "<github_org_name>"
-      useRepositoryPermissions: true
+      useRepositoryPermissions: false
   disableRememberMe: true
   mode: NORMAL
   primaryView:

@@ -19,7 +19,7 @@ def checkout() {
     deploymentBranch = "${DEPLOYMENT_DEV_BRANCH}"
   }
   catch (MissingPropertyException ex) {
-    deploymentBranch = 'master'
+    deploymentBranch = 'legacy-branch-for-PreProd/demo'
   }
   println("Cloning deployment repo with branch ${deploymentBranch}...")
   def gitProc = ['git', 'clone', '-b', deploymentBranch, jenkinsRepo].execute(null, workspaceDir)
@@ -64,7 +64,7 @@ def createJobFromGroovy(String folderName, File groovyFile) {
   def arguments = [:]
   arguments['folderName'] = folderName
   arguments['jenkins'] = this
-  arguments['defaultBranch'] = 'master'
+  arguments['defaultBranch'] = 'legacy-branch-for-PreProd/demo'
   script.invokeMethod('createJob', arguments)
 }
 

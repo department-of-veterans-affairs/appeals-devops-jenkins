@@ -162,7 +162,7 @@ jobs:
                 dsl(['seedJob.groovy'])
             }
             parameters {
-                stringParam('DEPLOYMENT_DEV_BRANCH', 'legacy-branch-for-preprod/demo', 'appeals-deployment branch')
+                stringParam('DEPLOYMENT_DEV_BRANCH', 'legacy-branch-for-PreProd/demo', 'appeals-deployment branch')
             }
             triggers {
                 cron('H H(0-5) * * *')

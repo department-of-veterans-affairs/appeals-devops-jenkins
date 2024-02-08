@@ -7,13 +7,14 @@ class Caseflow {
 
   static final CASEFLOW_APPS =  ['certification', 'efolder', 'monitor']
   static final CASEFLOW_APPS_WITH_DB =  ['certification', 'efolder']
-  static final UTILITY_APPS =  ['sentry', 'logstash', 'caseflow-db-read']
+  static final UTILITY_APPS =  ['sentry', 'logstash', 'caseflow-db-read', 'kafka']
   static final DEPLOY_TYPE = [
                               certification: 'blueGreens',
                               efolder: 'blueGreens',
                               monitor: 'blueGreens',
                               sentry: 'blueGreens',
                               logstash: 'blueGreens',
+                              kafka: 'blueGreens',
                               "caseflow-db-read": 'blueGreens'
                            ]
   static final SCALE_DOWN = [

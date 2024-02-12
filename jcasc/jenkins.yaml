@@ -14,7 +14,7 @@ jenkins:
   authorizationStrategy:
     github:
       adminUserNames: "<admins>"
-      allowAnonymousJobStatusPermission: true
+      allowAnonymousJobStatusPermission: false
       allowAnonymousReadPermission: true
       allowCcTrayPermission: false
       allowGithubWebHookPermission: true

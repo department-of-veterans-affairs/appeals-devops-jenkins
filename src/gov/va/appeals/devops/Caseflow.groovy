@@ -7,6 +7,7 @@ class Caseflow {
 
   static final CASEFLOW_APPS =  ['certification', 'efolder', 'monitor']
   static final CASEFLOW_APPS_WITH_DB =  ['certification', 'efolder']
+  static final CASEFLOW_APPS_WITH_DB_MIGRATE =  ['certification', 'efolder', 'monitor', 'kafka']  
   static final UTILITY_APPS =  ['sentry', 'logstash', 'caseflow-db-read', 'kafka']
   static final DEPLOY_TYPE = [
                               certification: 'blueGreens',

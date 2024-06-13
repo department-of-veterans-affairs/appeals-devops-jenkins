@@ -178,8 +178,7 @@ jobs:
                 dsl(['seedJob.groovy'])
             }
             parameters {
-                stringParam('DEPLOYMENT_DEV_BRANCH', 'master', 'appeals-deployment branch')
-                booleanParam('SEED_JOB_DISABLED', true, 'Disable/enable the Jenkins jobs created by the seed-job')                
+                stringParam('DEPLOYMENT_DEV_BRANCH', 'master', 'appeals-deployment branch')                
             }
             triggers {
                 cron('H H(0-5) * * *')

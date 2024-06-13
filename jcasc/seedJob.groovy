@@ -64,8 +64,7 @@ def createJobFromGroovy(String folderName, File groovyFile) {
   def arguments = [:]
   arguments['folderName'] = folderName
   arguments['jenkins'] = this
-  arguments['defaultBranch'] = "${DEPLOYMENT_DEV_BRANCH}" 
-  arguments['jobDisabled'] = "${SEED_JOB_DISABLED}"
+  arguments['defaultBranch'] = "${DEPLOYMENT_DEV_BRANCH}"
   arguments['accountENV'] = "$ACCOUNT_ENV"
   script.invokeMethod('createJob', arguments)
 }

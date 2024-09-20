@@ -152,7 +152,7 @@ unclassified:
     libraries:
       - name: "appeals-devops-jenkins"
         #set to VAEC branch for initial Jenkins deployment
-        defaultVersion: "master"
+        defaultVersion: "main"
         implicit: true
         retriever:
           modernSCM:
@@ -178,7 +178,7 @@ jobs:
                 dsl(['seedJob.groovy'])
             }
             parameters {
-                stringParam('DEPLOYMENT_DEV_BRANCH', 'master', 'appeals-deployment branch')                
+                stringParam('DEPLOYMENT_DEV_BRANCH', 'main', 'appeals-deployment branch')                
             }
             triggers {
                 cron('H H(0-5) * * *')

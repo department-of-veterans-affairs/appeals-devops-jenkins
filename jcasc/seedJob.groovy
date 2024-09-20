@@ -19,7 +19,7 @@ def checkout() {
     deploymentBranch = "${DEPLOYMENT_DEV_BRANCH}"
   }
   catch (MissingPropertyException ex) {
-    deploymentBranch = 'master'
+    deploymentBranch = 'main'
   }
   println("Cloning deployment repo with branch ${deploymentBranch}...")
   def gitProc = ['git', 'clone', '-b', deploymentBranch, jenkinsRepo].execute(null, workspaceDir)

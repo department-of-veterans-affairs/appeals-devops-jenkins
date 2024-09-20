@@ -1,5 +1,5 @@
 def call(Map stageParams) {
-  branch = stageParams.branch ? stageParams.branch : 'master'
+  branch = stageParams.branch ? stageParams.branch : 'main'
   checkout([
         $class: 'GitSCM',
         branches: [[ name:  branch ]],

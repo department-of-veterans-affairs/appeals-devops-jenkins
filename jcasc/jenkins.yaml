@@ -60,6 +60,11 @@ credentials:
             id: "SLACK_TEAM_DOMAIN"
             secret: "<jenkins.slack_team_domain>"
             description: "DSVA team on Slack"
+        - string:
+            scope: GLOBAL
+            id: "VAEC_SLACK_TOKEN"
+            secret: "<jenkins.slack_token>"
+            description: "Vaec Slack token"
         # - string:
         #     scope: GLOBAL
         #     id: "SLACK_TOKEN"
@@ -80,11 +85,7 @@ credentials:
         #     id: "TEST_SLACK_TOKEN"
         #     secret: "<jenkins.slack_token>"
         #     description: "Test Slack token"
-        - string:
-            scope: GLOBAL
-            id: "VAEC_SLACK_TOKEN"
-            secret: "<jenkins.slack_token>"
-            description: "Vaec Slack token"
+
         # Temporarily remove dsva related slack channels for initial vaec jenkins deployment
         # - string:
         #     scope: GLOBAL
@@ -112,7 +113,6 @@ credentials:
            id: "VAEC_SLACK_CHANNEL"
            secret: "<jenkins.vaec_channel>"
            description: "VAEC Alert Slack Channel"
-
         - usernamePassword:
             scope: GLOBAL
             id: "va-bot"
@@ -124,6 +124,16 @@ credentials:
             id: "GIT_CREDENTIAL"
             secret: "<devops.github_api_token>"
             description: "va-bot personal access token"
+        - string:
+            scope: GLOBAL
+            id: "demoDeployToken"
+            secret: "<jenkins.demoDeployToken>"
+            description: "Demo Deploy Token"
+        - string:
+            scope: GLOBAL
+            id: "grafanaDeployToken"
+            secret: "<jenkins.grafanaDeployToken>"
+            description: "K6 Grafana load testing token"
 
 # root
 tool:

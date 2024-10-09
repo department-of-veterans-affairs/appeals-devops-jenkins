@@ -66,6 +66,7 @@ def createJobFromGroovy(String folderName, File groovyFile) {
   arguments['jenkins'] = this
   arguments['defaultBranch'] = "${DEPLOYMENT_DEV_BRANCH}"
   arguments['accountENV'] = "$ACCOUNT_ENV"
+  arguments['demoDeployToken'] = demoDeployToken
   script.invokeMethod('createJob', arguments)
 }
 
